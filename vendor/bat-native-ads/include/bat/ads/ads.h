@@ -42,15 +42,6 @@ extern const char _bundle_schema_resource_name[];
 // Catalog schema resource name
 extern const char _catalog_schema_resource_name[];
 
-// Sample bundle resource name
-extern const char _sample_bundle_resource_name[];
-
-// Catalog resource name
-extern const char _catalog_resource_name[];
-
-// Client resource name
-extern const char _client_resource_name[];
-
 // Returns |true| if the locale is supported; otherwise returns |false|
 bool IsSupportedLocale(
     const std::string& locale);
@@ -220,6 +211,12 @@ class ADS_EXPORT Ads {
       const std::string& creative_instance_id,
       const std::string& creative_set_id,
       const bool flagged) = 0;
+
+  // Should be called when user model files have been updated in the
+  // |BraveUserModelInstaller| component
+  virtual void OnUserModelFilesUpdated(
+      const std::string& model_id,
+      const std::string& model_path) = 0;
 
  private:
   // Not copyable, not assignable

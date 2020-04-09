@@ -50,6 +50,12 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/time/time.h"
+#include "base/json/json_reader.h"
+#include "base/files/file_util.h"
+#include "base/files/file_path.h"
+#include "base/task/post_task.h"
+#include "base/path_service.h"
+#include "chrome/common/chrome_paths.h"
 
 #if defined(OS_ANDROID)
 #include "base/system/sys_info.h"
@@ -90,9 +96,7 @@ AdsImpl::AdsImpl(AdsClient* ads_client)
       ad_conversions_(std::make_unique<AdConversions>(
           this, ads_client, client_.get())),
       page_classifier_(std::make_unique<PageClassifier>(this)),
-      purchase_intent_classifier_(std::make_unique<PurchaseIntentClassifier>(
-          kPurchaseIntentSignalLevel, kPurchaseIntentClassificationThreshold,
-              kPurchaseIntentSignalDecayTimeWindow)),
+      purchase_intent_classifier_(std::make_unique<PurchaseIntentClassifier>()),
       is_initialized_(false),
       is_confirmations_ready_(false),
       ad_notifications_(std::make_unique<AdNotifications>(this, ads_client)),
@@ -268,14 +272,16 @@ void AdsImpl::Shutdown(
   callback(SUCCESS);
 }
 
-void AdsImpl::LoadUserModel() {
+void AdsImpl::LoadPageClassifier() {
   auto language = client_->GetUserModelLanguage();
-
-  auto callback = std::bind(&AdsImpl::OnUserModelLoaded, this, _1, _2);
-  ads_client_->LoadUserModelForLanguage(language, callback);
+  std::string path = ads_client_->GetUserModelFilePath(
+      kPageClassifierIds.at(language));
+  auto callback = std::bind(
+      &AdsImpl::OnPageClassifierLoaded, this, _1, _2);
+  ads_client_->Load(path, callback);
 }
 
-void AdsImpl::OnUserModelLoaded(
+void AdsImpl::OnPageClassifierLoaded(
     const Result result,
     const std::string& json) {
   auto language = client_->GetUserModelLanguage();
@@ -299,6 +305,29 @@ void AdsImpl::OnUserModelLoaded(
   if (!IsInitialized()) {
     InitializeStep5(SUCCESS);
   }
+}
+
+void AdsImpl::LoadPurchaseIntentClassifier() {
+  std::string path = ads_client_->GetUserModelFilePath(
+      kPurchaseIntentClassifierId);
+  auto callback = std::bind(
+      &AdsImpl::OnPurchaseIntentClassifierLoaded, this, _1, _2);
+  ads_client_->Load(path, callback);
+}
+
+void AdsImpl::OnPurchaseIntentClassifierLoaded(
+    const Result result,
+    const std::string& json) {
+  if (result != SUCCESS) {
+    BLOG(0, "Failed to load purchase intent model update");
+    return;
+  }
+
+  purchase_intent_classifier_.reset(new PurchaseIntentClassifier());
+  purchase_intent_classifier_->Initialize(json);
+
+  BLOG(3, "Successfully loaded and initialized purchase intent model");
+  return;
 }
 
 bool AdsImpl::IsMobile() const {
@@ -613,7 +642,18 @@ void AdsImpl::ChangeLocale(
     return;
   }
 
-  LoadUserModel();
+  LoadPageClassifier();
+  LoadPurchaseIntentClassifier();
+}
+
+void AdsImpl::OnUserModelFilesUpdated(
+    const std::string& model_id,
+    const std::string& model_path) {
+  if (model_id == kPurchaseIntentClassifierId) {
+    auto callback = std::bind(
+        &AdsImpl::OnPurchaseIntentClassifierLoaded, this, _1, _2);
+    ads_client_->Load(model_path, callback);
+  }
 }
 
 void AdsImpl::OnPageLoaded(

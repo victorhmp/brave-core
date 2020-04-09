@@ -299,6 +299,7 @@ test("brave_unit_tests") {
 
   if (brave_ads_enabled) {
     sources += [
+      # "//brave/components/brave_user_model_installer/browser",
       "//brave/components/brave_ads/browser/ads_service_impl_unittest.cc",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/client_mock.h",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/client_mock.cc",
@@ -316,10 +317,12 @@ test("brave_unit_tests") {
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/sorts/ad_conversions_sort_unittest.cc",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/sorts/ads_history_sort_unittest.cc",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/page_classifier/page_classifier_unittest.cc",
-      "//brave/vendor/bat-native-ads/src/bat/ads/internal/purchase_intent/funnel_sites_unittest.cc",
-      "//brave/vendor/bat-native-ads/src/bat/ads/internal/purchase_intent/keywords_unittest.cc",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/purchase_intent/purchase_intent_classifier_unittest.cc",
       "//brave/vendor/bat-native-ads/src/bat/ads/internal/url_util_unittest.cc",
+    ]
+
+    deps += [
+      # "//brave/components/brave_user_model_installer/browser",
     ]
   }
 

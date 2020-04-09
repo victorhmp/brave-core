@@ -83,6 +83,10 @@
 #include "chrome/browser/ui/browser.h"
 #endif
 
+#if BUILDFLAG(BRAVE_ADS_ENABLED)
+#include "brave/components/brave_user_model_installer/browser/user_model_file_service.h"
+#endif
+
 using brave_component_updater::BraveComponent;
 using ntp_background_images::features::kBraveNTPBrandedWallpaper;
 using ntp_background_images::NTPBackgroundImagesService;
@@ -193,6 +197,9 @@ void BraveBrowserProcessImpl::StartBraveServices() {
 #endif
 #if BUILDFLAG(ENABLE_SPEEDREADER)
   speedreader_whitelist();
+#endif
+#if BUILDFLAG(BRAVE_ADS_ENABLED)
+  user_model_file_service();
 #endif
   // Now start the local data files service, which calls all observers.
   local_data_files_service()->Start();
@@ -402,3 +409,15 @@ BraveBrowserProcessImpl::speedreader_whitelist() {
   return speedreader_whitelist_.get();
 }
 #endif  // BUILDFLAG(ENABLE_SPEEDREADER)
+
+#if BUILDFLAG(BRAVE_ADS_ENABLED)
+brave_user_model_installer::UserModelFileService*
+BraveBrowserProcessImpl::user_model_file_service() {
+  if (!user_model_file_service_) {
+    user_model_file_service_.reset(
+        new brave_user_model_installer::UserModelFileService(
+            brave_component_updater_delegate()));
+  }
+  return user_model_file_service_.get();
+}
+#endif  // BUILDFLAG(BRAVE_ADS_ENABLED)

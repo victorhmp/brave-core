@@ -22,14 +22,14 @@ namespace ads {
 
 struct TestTriplet {
   std::string url;
-  FunnelSiteInfo funnel_site_info;
+  SiteInfo site_info;
 };
 
 const std::vector<TestTriplet> kTestUrls = {
   {"http://www.carmax.com", _automotive_funnel_sites.at(1)},
   {"http://www.carmax.com/foobar", _automotive_funnel_sites.at(1)},
   {"http://carmax.com", _automotive_funnel_sites.at(1)},
-  {"http://brave.com/foobar", FunnelSiteInfo()},
+  {"http://brave.com/foobar", SiteInfo()},
 };
 
 class AdsPurchaseIntentFunnelSitesTest : public ::testing::Test {
@@ -67,10 +67,10 @@ TEST_F(AdsPurchaseIntentFunnelSitesTest, MatchesFunnelSites) {
   for (const auto& test_url : kTestUrls) {
     // Arrange
     std::string url = test_url.url;
-    FunnelSiteInfo funnel_site = test_url.funnel_site_info;
+    SiteInfo funnel_site = test_url.site_info;
 
     // Act
-    const FunnelSiteInfo matched_site = FunnelSites::GetFunnelSite(url);
+    const SiteInfo matched_site = FunnelSites::GetFunnelSite(url);
 
     // Assert
     EXPECT_EQ(funnel_site.weight, matched_site.weight);

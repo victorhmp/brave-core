@@ -91,16 +91,16 @@ void NativeAdsClient::URLRequest(const std::string & url, const std::vector<std:
   [bridge_ URLRequest:url headers:headers content:content contentType:content_type method:method callback:callback];
 }
 
-void NativeAdsClient::Save(const std::string & name, const std::string & value, ads::ResultCallback callback) {
-  [bridge_ save:name value:value callback:callback];
+void NativeAdsClient::Save(const std::string & path, const std::string & value, ads::ResultCallback callback) {
+  [bridge_ save:path value:value callback:callback];
 }
 
-void NativeAdsClient::Load(const std::string & name, ads::LoadCallback callback) {
-  [bridge_ load:name callback:callback];
+void NativeAdsClient::Load(const std::string & path, ads::LoadCallback callback) {
+  [bridge_ load:path callback:callback];
 }
 
-void NativeAdsClient::Reset(const std::string & name, ads::ResultCallback callback) {
-  [bridge_ reset:name callback:callback];
+void NativeAdsClient::Reset(const std::string & path, ads::ResultCallback callback) {
+  [bridge_ reset:path callback:callback];
 }
 
 std::string NativeAdsClient::LoadJsonSchema(const std::string & name) {

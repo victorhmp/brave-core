@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "bat/ads/internal/purchase_intent/segment_keyword_info.h"
-
 namespace ads {
+
+using PurchaseIntentSegmentList = std::vector<std::string>;
 
 struct PurchaseIntentSignalInfo {
  public:

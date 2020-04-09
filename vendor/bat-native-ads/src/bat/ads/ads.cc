@@ -19,8 +19,6 @@ Environment _environment = Environment::DEVELOPMENT;
 
 const char _bundle_schema_resource_name[] = "bundle-schema.json";
 const char _catalog_schema_resource_name[] = "catalog-schema.json";
-const char _catalog_resource_name[] = "catalog.json";
-const char _client_resource_name[] = "client.json";
 
 bool IsSupportedLocale(
     const std::string& locale) {

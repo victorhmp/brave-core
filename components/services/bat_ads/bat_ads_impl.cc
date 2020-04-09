@@ -5,6 +5,7 @@
 
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "brave/components/services/bat_ads/bat_ads_impl.h"
 #include "bat/ads/ad_content.h"
@@ -210,6 +211,13 @@ void BatAdsImpl::ToggleFlagAd(
   bool flagged_result =
       ads_->ToggleFlagAd(creative_instance_id, creative_set_id, flagged);
   std::move(callback).Run(creative_instance_id, flagged_result);
+}
+
+void BatAdsImpl::OnUserModelFilesUpdated(
+    const std::string& model_name,
+    const std::string& model_path) {
+  std::cout << "*** DEBUG 4: Bat Ads got notified\n";
+  ads_->OnUserModelFilesUpdated(model_name, model_path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

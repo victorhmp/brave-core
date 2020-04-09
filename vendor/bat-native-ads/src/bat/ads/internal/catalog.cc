@@ -11,6 +11,7 @@
 #include "bat/ads/internal/json_helper.h"
 #include "bat/ads/internal/static_values.h"
 #include "bat/ads/internal/logging.h"
+#include "base/files/file_path.h"
 
 namespace ads {
 
@@ -58,18 +59,25 @@ IssuersInfo Catalog::GetIssuers() const {
 }
 
 void Catalog::Save(const std::string& json, ResultCallback callback) {
-  ads_->get_ads_client()->Save(_catalog_resource_name, json, callback);
+  const std::string path = GetPath();
+  ads_->get_ads_client()->Save(path, json, callback);
 }
 
 void Catalog::Reset(ResultCallback callback) {
-  ads_->get_ads_client()->Reset(_catalog_resource_name, callback);
-}
-
-const std::string& Catalog::get_last_message() const {
-  return last_message_;
+  const std::string path = GetPath();
+  ads_->get_ads_client()->Reset(path, callback);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+std::string Catalog::GetPath() const {
+  const std::string path = ads_->get_ads_client()->GetPath();
+  base::FilePath file_path(path);
+
+  file_path = file_path.AppendASCII("catalog.json");
+
+  return file_path.value();
+}
 
 bool Catalog::HasChanged(const std::string& current_catalog_id) {
   if (current_catalog_id.empty()) {

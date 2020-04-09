@@ -7,9 +7,13 @@
 
 #include <limits>
 #include <utility>
+#include <iostream>
 
 #include "base/command_line.h"
+#include "base/files/file_path.h"
 #include "base/files/file_util.h"
+#include "base/path_service.h"
+#include "chrome/common/chrome_paths.h"
 #include "base/files/important_file_writer.h"
 #include "base/guid.h"
 #include "base/logging.h"
@@ -40,6 +44,7 @@
 #include "brave/components/services/bat_ads/public/interfaces/bat_ads.mojom.h"
 #include "brave/components/brave_ads/browser/notification_helper.h"
 #include "chrome/browser/browser_process.h"
+#include "brave/browser/brave_browser_process_impl.h"
 #include "chrome/browser/notifications/notification_display_service.h"
 #include "chrome/browser/profiles/profile_manager.h"
 #include "chrome/browser/profiles/profile.h"
@@ -285,11 +290,31 @@ AdsServiceImpl::AdsServiceImpl(Profile* profile) :
   MaybeShowOnboarding();
 #endif
 
+  g_brave_browser_process->user_model_file_service()->AddObserver(this);
+
   MaybeStart(false);
 }
 
 AdsServiceImpl::~AdsServiceImpl() {
   file_task_runner_->DeleteSoon(FROM_HERE, bundle_state_backend_.release());
+}
+
+void AdsServiceImpl::OnUserModelFilesUpdated(
+    const std::string& model_id,
+    const base::FilePath& model_path) {
+  std::cout << "*** DEBUG 3: AdsService got notified\n";
+  if (!connected()) {
+    std::cout << "*** DEBUG 3a\n";
+    return;
+  }
+
+  if (model_path.empty()) {
+    std::cout << "*** DEBUG 3b\n";
+    return;
+  }
+
+  const std::string model_path_string = model_path.value();
+  bat_ads_->OnUserModelFilesUpdated(model_id, model_path_string);
 }
 
 bool AdsServiceImpl::IsSupportedLocale() const {
@@ -1871,6 +1896,17 @@ void AdsServiceImpl::LoadUserModelForLanguage(
   callback(ads::Result::SUCCESS, user_model);
 }
 
+std::string AdsServiceImpl::GetUserModelFilePath(
+    const std::string& model_id) {
+  std::string path;
+  if (base::Optional<base::FilePath> model_path = g_brave_browser_process->
+      user_model_file_service()->GetPath(model_id)) {
+      return model_path->value();
+  }
+
+  return path;
+}
+
 void AdsServiceImpl::ShowNotification(
     const std::unique_ptr<ads::AdNotificationInfo> info) {
   auto notification = CreateAdNotification(*info);
@@ -1985,11 +2021,12 @@ void AdsServiceImpl::URLRequest(
 }
 
 void AdsServiceImpl::Save(
-    const std::string& name,
+    const std::string& path,
     const std::string& value,
     ads::ResultCallback callback) {
-  base::ImportantFileWriter writer(
-      base_path_.AppendASCII(name), file_task_runner_);
+  base::FilePath file_path(path);
+
+  base::ImportantFileWriter writer(file_path, file_task_runner_);
 
   writer.RegisterOnNextWriteCallbacks(
       base::Closure(),
@@ -2003,22 +2040,30 @@ void AdsServiceImpl::Save(
 }
 
 void AdsServiceImpl::Load(
-    const std::string& name,
+    const std::string& path,
     ads::LoadCallback callback) {
+  base::FilePath file_path(path);
+
   base::PostTaskAndReplyWithResult(file_task_runner_.get(), FROM_HERE,
-      base::BindOnce(&LoadOnFileTaskRunner, base_path_.AppendASCII(name)),
+      base::BindOnce(&LoadOnFileTaskRunner, file_path),
       base::BindOnce(&AdsServiceImpl::OnLoaded,
                      AsWeakPtr(),
                      std::move(callback)));
 }
 
 void AdsServiceImpl::Reset(
-    const std::string& name,
+    const std::string& path,
     ads::ResultCallback callback) {
+  base::FilePath file_path(path);
+
   base::PostTaskAndReplyWithResult(file_task_runner_.get(), FROM_HERE,
-      base::BindOnce(&ResetOnFileTaskRunner, base_path_.AppendASCII(name)),
+      base::BindOnce(&ResetOnFileTaskRunner, file_path),
       base::BindOnce(&AdsServiceImpl::OnReset,
           AsWeakPtr(), std::move(callback)));
+}
+
+std::string AdsServiceImpl::GetPath() {
+  return base_path_.value();
 }
 
 std::string AdsServiceImpl::LoadJsonSchema(

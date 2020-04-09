@@ -28,6 +28,7 @@
 #include "bat/ads/internal/timer.h"
 #include "bat/ads/internal/page_classifier/page_classifier.h"
 #include "bat/ads/internal/purchase_intent/purchase_intent_classifier.h"
+#include "base/files/file_path.h"
 
 namespace ads {
 
@@ -70,11 +71,17 @@ class AdsImpl : public Ads {
   void Shutdown(
       ShutdownCallback callback) override;
 
-  void LoadUserModel();
-  void OnUserModelLoaded(
+  void OnUserModelFilesUpdated(
+      const std::string& model_id,
+      const std::string& model_path) override;
+  void LoadPageClassifier();
+  void OnPageClassifierLoaded(
       const Result result,
       const std::string& json);
-
+  void LoadPurchaseIntentClassifier();
+  void OnPurchaseIntentClassifierLoaded(
+      const Result result,
+      const std::string& json);
   bool IsMobile() const;
   bool IsAndroid() const;
 

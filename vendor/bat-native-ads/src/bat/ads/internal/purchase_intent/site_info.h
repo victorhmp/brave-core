@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef BAT_ADS_INTERNAL_PURCHASE_INTENT_FUNNEL_SITE_INFO_H_
-#define BAT_ADS_INTERNAL_PURCHASE_INTENT_FUNNEL_SITE_INFO_H_
+#ifndef BAT_ADS_INTERNAL_PURCHASE_INTENT_SITE_INFO_H_
+#define BAT_ADS_INTERNAL_PURCHASE_INTENT_SITE_INFO_H_
 
 #include <stdint.h>
 #include <string>
@@ -14,16 +14,16 @@ namespace ads {
 
 using PurchaseIntentSegmentList = std::vector<std::string>;
 
-struct FunnelSiteInfo {
+struct SiteInfo {
  public:
-  FunnelSiteInfo();
-  FunnelSiteInfo(
+  SiteInfo();
+  SiteInfo(
       const PurchaseIntentSegmentList& segments,
       const std::string& url_netloc,
       const uint16_t weight);
-  FunnelSiteInfo(
-      const FunnelSiteInfo& info);
-  ~FunnelSiteInfo();
+  SiteInfo(
+      const SiteInfo& info);
+  ~SiteInfo();
 
   PurchaseIntentSegmentList segments;
   std::string url_netloc;
@@ -32,4 +32,4 @@ struct FunnelSiteInfo {
 
 }  // namespace ads
 
-#endif  // BAT_ADS_INTERNAL_PURCHASE_INTENT_FUNNEL_SITE_INFO_H_
+#endif  // BAT_ADS_INTERNAL_PURCHASE_INTENT_SITE_INFO_H_

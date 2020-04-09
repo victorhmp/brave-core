@@ -7,13 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "bat/ads/internal/purchase_intent/funnel_site_info.h"
+#include "bat/ads/internal/purchase_intent/site_info.h"
 
 namespace ads {
 
-FunnelSiteInfo::FunnelSiteInfo() = default;
+SiteInfo::SiteInfo() = default;
 
-FunnelSiteInfo::FunnelSiteInfo(
+SiteInfo::SiteInfo(
     const PurchaseIntentSegmentList& segments,
     const std::string& url_netloc,
     const uint16_t weight)
@@ -21,9 +21,9 @@ FunnelSiteInfo::FunnelSiteInfo(
       url_netloc(url_netloc),
       weight(weight) {}
 
-FunnelSiteInfo::FunnelSiteInfo(
-    const FunnelSiteInfo& info) = default;
+SiteInfo::SiteInfo(
+    const SiteInfo& info) = default;
 
-FunnelSiteInfo::~FunnelSiteInfo() = default;
+SiteInfo::~SiteInfo() = default;
 
 }  // namespace ads

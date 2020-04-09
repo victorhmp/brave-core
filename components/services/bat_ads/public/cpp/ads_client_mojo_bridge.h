@@ -51,6 +51,12 @@ class AdsClientMojoBridge
       std::vector<std::string>* out_languages) override;
   void GetUserModelLanguages(
       GetUserModelLanguagesCallback callback) override;
+  bool GetUserModelFilePath(
+      const std::string& model_name,
+      std::string* out_path) override;
+  void GetUserModelFilePath(
+      const std::string& model_name,
+      LoadJsonSchemaCallback callback) override;
   bool GetAdsPerHour(
       uint64_t* out_ads_per_hour) override;
   void GetAdsPerHour(
@@ -71,6 +77,10 @@ class AdsClientMojoBridge
       bool* out_should_show) override;
   void ShouldShowNotifications(
       ShouldShowNotificationsCallback callback) override;
+  bool GetPath(
+      std::string* out_path) override;
+  void GetPath(
+      GetPathCallback callback) override;
   bool LoadJsonSchema(
       const std::string& name,
       std::string* out_json) override;
@@ -91,10 +101,10 @@ class AdsClientMojoBridge
   void SetIdleThreshold(
       const int32_t threshold) override;
   void Load(
-      const std::string& name,
+      const std::string& path,
       LoadCallback callback) override;
   void Save(
-      const std::string& name,
+      const std::string& path,
       const std::string& value,
       SaveCallback callback) override;
   void Reset(

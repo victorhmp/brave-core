@@ -170,6 +170,18 @@ void BatAdsClientMojoBridge::LoadUserModelForLanguage(
       base::BindOnce(&OnLoadUserModelForLanguage, std::move(callback)));
 }
 
+std::string BatAdsClientMojoBridge::GetUserModelFilePath(
+    const std::string& model_name) {
+  std::string path;
+
+  if (!connected()) {
+    return path;
+  }
+
+  bat_ads_client_->GetUserModelFilePath(model_name, &path);
+  return path;
+}
+
 bool BatAdsClientMojoBridge::IsForeground() const {
   if (!connected()) {
     return false;
@@ -271,7 +283,7 @@ void OnSave(
 }
 
 void BatAdsClientMojoBridge::Save(
-    const std::string& name,
+    const std::string& path,
     const std::string& value,
     ads::ResultCallback callback) {
   if (!connected()) {
@@ -279,7 +291,7 @@ void BatAdsClientMojoBridge::Save(
     return;
   }
 
-  bat_ads_client_->Save(name, value, base::BindOnce(&OnSave,
+  bat_ads_client_->Save(path, value, base::BindOnce(&OnSave,
       std::move(callback)));
 }
 
@@ -291,14 +303,14 @@ void OnLoad(
 }
 
 void BatAdsClientMojoBridge::Load(
-    const std::string& name,
+    const std::string& path,
     ads::LoadCallback callback) {
   if (!connected()) {
     callback(ads::Result::FAILED, "");
     return;
   }
 
-  bat_ads_client_->Load(name, base::BindOnce(&OnLoad, std::move(callback)));
+  bat_ads_client_->Load(path, base::BindOnce(&OnLoad, std::move(callback)));
 }
 
 void OnReset(
@@ -308,14 +320,25 @@ void OnReset(
 }
 
 void BatAdsClientMojoBridge::Reset(
-    const std::string& name,
+    const std::string& path,
     ads::ResultCallback callback) {
   if (!connected()) {
     callback(ads::Result::FAILED);
     return;
   }
 
-  bat_ads_client_->Reset(name, base::BindOnce(&OnReset, std::move(callback)));
+  bat_ads_client_->Reset(path, base::BindOnce(&OnReset, std::move(callback)));
+}
+
+std::string BatAdsClientMojoBridge::GetPath() {
+  std::string path;
+
+  if (!connected()) {
+    return path;
+  }
+
+  bat_ads_client_->GetPath(&path);
+  return path;
 }
 
 std::string BatAdsClientMojoBridge::LoadJsonSchema(

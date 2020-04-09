@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "base/macros.h"
+#include "base/files/file_util.h"
 #include "build/build_config.h"
 #include "components/keyed_service/core/keyed_service.h"
 #include "components/sessions/core/session_id.h"
@@ -123,6 +124,10 @@ class AdsService : public KeyedService {
 
   virtual void ResetTheWholeState(
       const base::Callback<void(bool)>& callback) = 0;
+
+  virtual void OnUserModelFilesUpdated(
+      const std::string& model_id,
+      const base::FilePath& model_path) = 0;
 };
 
 }  // namespace brave_ads

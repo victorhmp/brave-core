@@ -286,6 +286,7 @@ source_set("browser_process") {
 
   if (brave_ads_enabled) {
     deps += [
+      "//brave/components/brave_user_model_installer/browser",
       "//brave/components/services/bat_ads/public/cpp:manifest",
       "//components/dom_distiller/core",
     ]

@@ -43,6 +43,8 @@ class Catalog {
   const std::string& get_last_message() const;
 
  private:
+  std::string GetPath() const;
+
   AdsImpl* ads_;  // NOT OWNED
 
   std::shared_ptr<CatalogState> catalog_state_;
