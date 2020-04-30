@@ -18,6 +18,10 @@ namespace bat_ledger {
 class LedgerImpl;
 }
 
+namespace braveledger_publisher {
+class PublisherListReader;
+}
+
 namespace braveledger_database {
 
 class DatabaseInitialize;
@@ -32,6 +36,7 @@ class DatabasePendingContribution;
 class DatabaseProcessedPublisher;
 class DatabasePromotion;
 class DatabasePublisherInfo;
+class DatabasePublisherList;
 class DatabaseRecurringTip;
 class DatabaseServerPublisherInfo;
 class DatabaseSKUOrder;
@@ -315,14 +320,20 @@ class Database {
   /**
    * SERVER PUBLISHER INFO
    */
-  void ClearServerPublisherList(ledger::ResultCallback callback);
+  void SearchPublisherList(
+      const std::string& publisher_key,
+      ledger::SearchPublisherListCallback callback);
 
-  void InsertServerPublisherList(
-      const std::vector<ledger::ServerPublisherPartial>& list,
+  void ResetPublisherList(
+      std::unique_ptr<braveledger_publisher::PublisherListReader> reader,
       ledger::ResultCallback callback);
 
-  void InsertPublisherBannerList(
-      const std::vector<ledger::PublisherBanner>& list,
+  void InsertServerPublisherInfo(
+      const ledger::ServerPublisherInfo& server_info,
+      ledger::ResultCallback callback);
+
+  void DeleteExpiredServerPublisherInfo(
+      int64_t max_age_seconds,
       ledger::ResultCallback callback);
 
   void GetServerPublisherInfo(
@@ -402,6 +413,7 @@ class Database {
   std::unique_ptr<DatabaseMediaPublisherInfo> media_publisher_info_;
   std::unique_ptr<DatabaseMultiTables> multi_tables_;
   std::unique_ptr<DatabasePublisherInfo> publisher_info_;
+  std::unique_ptr<DatabasePublisherList> publisher_list_;
   std::unique_ptr<DatabaseRecurringTip> recurring_tip_;
   std::unique_ptr<DatabaseServerPublisherInfo> server_publisher_info_;
   std::unique_ptr<DatabaseSKUOrder> sku_order_;

@@ -24,12 +24,13 @@
 #define BALANCE_DEVELOPMENT_SERVER            \
 "https://balance.rewards.brave.software"
 
+// TODO(zenparsing): [blocking] Update these URLs
 #define PUBLISHER_STAGING_SERVER     \
-"https://publishers-staging-distro.basicattentiontoken.org"
+"http://localhost:3000"
 #define PUBLISHER_PRODUCTION_SERVER  \
-"https://publishers-distro.basicattentiontoken.org"
+"http://localhost:3000"
 #define PUBLISHER_DEVELOPMENT_SERVER  \
-"https://creators-distro.brave.software"
+"http://localhost:3000"
 
 #define PROMOTION_STAGING_SERVER              \
 "https://grant.rewards.bravesoftware.com"

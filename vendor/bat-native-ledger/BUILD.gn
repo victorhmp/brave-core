@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import("//brave/components/brave_ads/browser/buildflags/buildflags.gni")
+import("//third_party/protobuf/proto_library.gni")
 
 if (is_android) {
   import("//build/config/android/rules.gni")
@@ -25,7 +26,10 @@ config("internal_config") {
     "//brave/components/brave_rewards/test:*",
     "//brave/test:*",
   ]
-  include_dirs = [ "src" ]
+  include_dirs = [
+    "src",
+    "$target_gen_dir/src",
+  ]
 }
 
 group("bat-native-ledger") {
@@ -86,6 +90,13 @@ source_set("headers") {
   ]
 }
 
+proto_library("publishers_proto") {
+  sources = [
+    "src/bat/ledger/internal/publisher/publisher_list.proto",
+    "src/bat/ledger/internal/publisher/channel_response.proto",
+  ]
+}
+
 source_set("ledger") {
   visibility = [ ":*" ]
   configs += [ ":internal_config" ]
@@ -111,6 +122,8 @@ source_set("ledger") {
     "src/bat/ledger/internal/legacy/bat_state.h",
     "src/bat/ledger/internal/common/bind_util.cc",
     "src/bat/ledger/internal/common/bind_util.h",
+    "src/bat/ledger/internal/common/brotli_helpers.h",
+    "src/bat/ledger/internal/common/brotli_helpers.cc",
     "src/bat/ledger/internal/common/security_helper.cc",
     "src/bat/ledger/internal/common/security_helper.h",
     "src/bat/ledger/internal/common/time_util.cc",
@@ -186,6 +199,8 @@ source_set("ledger") {
     "src/bat/ledger/internal/database/database_promotion_creds.h",
     "src/bat/ledger/internal/database/database_publisher_info.cc",
     "src/bat/ledger/internal/database/database_publisher_info.h",
+    "src/bat/ledger/internal/database/database_publisher_list.cc",
+    "src/bat/ledger/internal/database/database_publisher_list.h",
     "src/bat/ledger/internal/database/database_recurring_tip.cc",
     "src/bat/ledger/internal/database/database_recurring_tip.h",
     "src/bat/ledger/internal/database/database_server_publisher_amounts.cc",
@@ -244,10 +259,19 @@ source_set("ledger") {
     "src/bat/ledger/internal/legacy/unsigned_tx_properties.h",
     "src/bat/ledger/internal/legacy/wallet_info_properties.cc",
     "src/bat/ledger/internal/legacy/wallet_info_properties.h",
+    "src/bat/ledger/internal/publisher/prefix_list.h",
+    "src/bat/ledger/internal/publisher/prefix_util.h",
+    "src/bat/ledger/internal/publisher/prefix_util.cc",
     "src/bat/ledger/internal/publisher/publisher.cc",
     "src/bat/ledger/internal/publisher/publisher.h",
-    "src/bat/ledger/internal/publisher/publisher_server_list.cc",
-    "src/bat/ledger/internal/publisher/publisher_server_list.h",
+    "src/bat/ledger/internal/publisher/publisher_list_updater.cc",
+    "src/bat/ledger/internal/publisher/publisher_list_updater.h",
+    "src/bat/ledger/internal/publisher/publisher_list_reader.cc",
+    "src/bat/ledger/internal/publisher/publisher_list_reader.h",
+    "src/bat/ledger/internal/publisher/publisher_status_helper.cc",
+    "src/bat/ledger/internal/publisher/publisher_status_helper.h",
+    "src/bat/ledger/internal/publisher/server_publisher_fetcher.cc",
+    "src/bat/ledger/internal/publisher/server_publisher_fetcher.h",
     "src/bat/ledger/internal/report/report.cc",
     "src/bat/ledger/internal/report/report.h",
     "src/bat/ledger/internal/request/request_attestation.cc",
@@ -332,9 +356,12 @@ source_set("ledger") {
   ]
 
   deps = [
+    ":publishers_proto",
     "//base",
     "//crypto",
     "//third_party/boringssl",
+    "//third_party/brotli:dec",
+    "//third_party/protobuf:protobuf_lite",
     "//third_party/re2",
     "//url",
     rebase_path("bat-native-ads", dep_base),

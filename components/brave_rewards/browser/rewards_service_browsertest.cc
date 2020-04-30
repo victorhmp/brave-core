@@ -8,14 +8,19 @@
 #include <string>
 #include <vector>
 
+#include "base/big_endian.h"
 #include "base/path_service.h"
 #include "base/run_loop.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/stringprintf.h"
 #include "base/memory/weak_ptr.h"
 #include "base/test/bind_test_util.h"
 #include "bat/ledger/internal/bat_helper.h"
 #include "bat/ledger/internal/uphold/uphold_util.h"
+#include "bat/ledger/internal/publisher/channel_response.pb.h"
+#include "bat/ledger/internal/publisher/prefix_util.h"
+#include "bat/ledger/internal/publisher/publisher_list.pb.h"
 #include "bat/ledger/internal/request/request_util.h"
 #include "bat/ledger/internal/request/request_sku.h"
 #include "bat/ledger/internal/static_values.h"
@@ -180,6 +185,21 @@ class BraveRewardsBrowserTest
     brave::RegisterPathProvider();
     ReadTestData();
 
+    std::vector<std::string> publisher_keys {
+      "bumpsmack.com",
+      "duckduckgo.com",
+      "3zsistemi.si",
+      "site1.com",
+      "site2.com",
+      "site3.com",
+      "laurenwags.github.io",
+    };
+
+    for (auto& key : publisher_keys) {
+      std::string prefix = braveledger_publisher::GetHashPrefixRaw(key, 4);
+      publisher_prefixes_[prefix] = key;
+    }
+
     auto* browser_profile = browser()->profile();
 
     rewards_service_ = static_cast<brave_rewards::RewardsServiceImpl*>(
@@ -224,6 +244,83 @@ class BraveRewardsBrowserTest
 
   std::string GetPromotionId() {
     return "6820f6a4-c6ef-481d-879c-d2c30c8928c3";
+  }
+
+  std::string GetPublisherListResponse() {
+    std::string prefixes;
+    for (auto& pair : publisher_prefixes_) {
+      prefixes += pair.first;
+    }
+
+    publishers_pb::PublisherList message;
+    message.set_prefix_size(4);
+    message.set_compression_type(publishers_pb::PublisherList::NO_COMPRESSION);
+    message.set_uncompressed_size(prefixes.size());
+    message.set_prefixes(std::move(prefixes));
+
+    std::string out;
+    message.SerializeToString(&out);
+    return out;
+  }
+
+  std::string GetPublisherChannelResponse(const std::string& prefix) {
+    std::string key;
+    for (auto& pair : publisher_prefixes_) {
+      std::string hex = base::HexEncode(pair.first.data(), pair.first.size());
+      if (hex.find(prefix) == 0) {
+        key = pair.second;
+        break;
+      }
+    }
+
+    if (key.empty()) {
+      return "";
+    }
+
+    publishers_pb::ChannelResponseList message;
+    auto* channel = message.add_channel_responses();
+    bool maybe_hide = false;
+
+    channel->set_channel_identifier(key);
+    channel->set_wallet_connected_state(publishers_pb::UPHOLD_ACCOUNT_KYC);
+
+    if (key == "bumpsmack.com") {
+      channel->set_wallet_connected_state(publishers_pb::UPHOLD_ACCOUNT_NO_KYC);
+      channel->set_wallet_address("address1");
+    } else if (key == "duckduckgo.com") {
+      channel->set_wallet_address("address2");
+    } else if (key == "3zsistemi.si") {
+      maybe_hide = true;
+      channel->set_wallet_address("address3");
+    } else if (key == "site1.com") {
+      maybe_hide = true;
+      channel->set_wallet_address("address4");
+    } else if (key == "site2.com") {
+      maybe_hide = true;
+      channel->set_wallet_address("address5");
+    } else if (key == "site3.com") {
+      maybe_hide = true;
+      channel->set_wallet_address("address6");
+    } else if (key == "laurenwags.github.io") {
+      channel->set_wallet_address("address2");
+      auto* banner = channel->mutable_site_banner_details();
+      banner->add_donation_amounts(5);
+      banner->add_donation_amounts(10);
+      banner->add_donation_amounts(20);
+    }
+
+    if (maybe_hide && alter_publisher_list_) {
+      return "";
+    }
+
+    std::string out;
+    message.SerializeToString(&out);
+
+    // Add padding header
+    uint32_t length = out.length();
+    out.insert(0, 4, ' ');
+    base::WriteBigEndian(&out[0], length);
+    return out;
   }
 
   std::string GetUpholdCard() {
@@ -396,33 +493,15 @@ class BraveRewardsBrowserTest
     } else if (URLMatches(url, "/captchas", PREFIX_V1,
                           ServerTypes::kPromotion)) {
       *response = brave_test_resp::captcha_;
-    } else if (URLMatches(url, "/api/v3/public/channels", "",
-                          ServerTypes::kPublisher)) {
-      if (alter_publisher_list_) {
-        *response =
-            "["
-            "[\"bumpsmack.com\",\"publisher_verified\",false,\"address1\",{}],"
-            "[\"duckduckgo.com\",\"wallet_connected\",false,\"address2\",{}],"
-            "[\"laurenwags.github.io\",\"wallet_connected\",false,\"address2\","
-              "{\"donationAmounts\": [5,10,20]}]"
-            "]";
-      } else {
-        *response =
-            "["
-            "[\"bumpsmack.com\",\"publisher_verified\",false,\"address1\",{}],"
-            "[\"duckduckgo.com\",\"wallet_connected\",false,\"address2\",{}],"
-            "[\"3zsistemi.si\",\"wallet_connected\",false,\"address3\",{}],"
-            "[\"site1.com\",\"wallet_connected\",false,\"address4\",{}],"
-            "[\"site2.com\",\"wallet_connected\",false,\"address5\",{}],"
-            "[\"site3.com\",\"wallet_connected\",false,\"address6\",{}],"
-            "[\"laurenwags.github.io\",\"wallet_connected\",false,\"address2\","
-              "{\"donationAmounts\": [5,10,20]}]"
-            "]";
-      }
-
-      // we only have one page in this mock, so next page should return end
-      if (url.find("page=2") != std::string::npos) {
-        *response_status_code = net::HTTP_NO_CONTENT;
+    } else if (URLMatches(url, "/prefixes", "", ServerTypes::kPublisher)) {
+      *response = GetPublisherListResponse();
+    } else if (URLMatches(url, "/prefix/", "", ServerTypes::kPublisher)) {
+      size_t start = url.rfind('/') + 1;
+      *response = start < url.length()
+          ? GetPublisherChannelResponse(url.substr(start))
+          : "";
+      if (response->empty()) {
+        *response_status_code = net::HTTP_NOT_FOUND;
       }
     } else if (base::StartsWith(
         url,
@@ -1447,6 +1526,7 @@ class BraveRewardsBrowserTest
   double external_balance_ = 0;
   bool verified_wallet_ = false;
   bool promotion_empty_key_ = false;
+  std::map<std::string, std::string> publisher_prefixes_;
   const std::string external_wallet_address_ =
       "abe5f454-fedd-4ea9-9203-470ae7315bb3";
 };

@@ -4,18 +4,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "base/strings/stringprintf.h"
-#include "bat/ledger/internal/static_values.h"
 #include "bat/ledger/internal/request/request_publisher.h"
 #include "bat/ledger/internal/request/request_util.h"
 
+namespace {
+
+constexpr char kPrefix[] = "";
+
+}  // namespace
+
 namespace braveledger_request_util {
 
-std::string GetPublisherListUrl(const uint32_t page) {
-  const std::string path = base::StringPrintf(
-      "/api/v3/public/channels?page=%d",
-      page);
+std::string GetPublisherListUrl() {
+  return BuildUrl(
+      "/prefixes",
+      kPrefix,
+      ServerTypes::kPublisher);
+}
 
-  return BuildUrl(path, "", ServerTypes::kPublisher);
+std::string GetPublisherInfoUrl(const std::string& hash_prefix) {
+  return BuildUrl(
+      base::StringPrintf("/prefix/%s", hash_prefix.data()),
+      kPrefix,
+      ServerTypes::kPublisher);
 }
 
 }  // namespace braveledger_request_util

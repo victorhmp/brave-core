@@ -13,8 +13,10 @@
 #include "base/guid.h"
 #include "bat/ledger/global_constants.h"
 #include "bat/ledger/internal/ledger_impl.h"
+#include "bat/ledger/internal/publisher/prefix_util.h"
 #include "bat/ledger/internal/publisher/publisher.h"
-#include "bat/ledger/internal/publisher/publisher_server_list.h"
+#include "bat/ledger/internal/publisher/publisher_list_updater.h"
+#include "bat/ledger/internal/publisher/server_publisher_fetcher.h"
 #include "bat/ledger/internal/static_values.h"
 #include "bat/ledger/internal/state/state_util.h"
 
@@ -25,62 +27,58 @@ namespace braveledger_publisher {
 
 Publisher::Publisher(bat_ledger::LedgerImpl* ledger):
   ledger_(ledger),
-  server_list_(std::make_unique<PublisherServerList>(ledger)) {
+  publisher_list_updater_(
+        std::make_unique<PublisherListUpdater>(ledger)),
+  server_publisher_fetcher_(
+      std::make_unique<ServerPublisherFetcher>(ledger)) {
 }
 
 Publisher::~Publisher() {
 }
 
-void Publisher::OnTimer(uint32_t timer_id) {
-  server_list_->OnTimer(timer_id);
+bool Publisher::ShouldFetchServerPublisherInfo(base::Time last_updated_time) {
+  return server_publisher_fetcher_->IsExpired(last_updated_time);
+}
+
+bool Publisher::ShouldFetchServerPublisherInfo(
+    ledger::ServerPublisherInfo* server_info) {
+  return server_publisher_fetcher_->IsExpired(server_info);
+}
+
+void Publisher::FetchServerPublisherInfo(
+    const std::string& publisher_key,
+    ledger::GetServerPublisherInfoCallback callback) {
+  return server_publisher_fetcher_->Fetch(publisher_key, callback);
 }
 
 void Publisher::RefreshPublisher(
-      const std::string& publisher_key,
-      ledger::OnRefreshPublisherCallback callback) {
-  server_list_->Start(std::bind(&Publisher::OnRefreshPublisher,
-          this,
-          _1,
-          publisher_key,
-          callback));
-}
-
-void Publisher::OnRefreshPublisher(
-    const ledger::Result result,
     const std::string& publisher_key,
     ledger::OnRefreshPublisherCallback callback) {
-  if (result != ledger::Result::LEDGER_OK) {
-    BLOG(0, "Publisher list was not successfully refreshed");
-    callback(ledger::PublisherStatus::NOT_VERIFIED);
-    return;
-  }
+  // Bypass cache and unconditionally fetch the latest info
+  // for the specified publisher.
+  server_publisher_fetcher_->Fetch(publisher_key,
+      [this, callback](auto server_info) {
+        auto status = server_info
+            ? server_info->status
+            : ledger::PublisherStatus::NOT_VERIFIED;
 
-  const auto server_callback =
-    std::bind(&Publisher::OnRefreshPublisherServerPublisher,
-              this,
-              _1,
-              callback);
+        // If, after refresh, the publisher is now verified
+        // attempt to process any pending contributions for
+        // unverified publishers.
+        if (status == ledger::PublisherStatus::VERIFIED) {
+          ledger_->ContributeUnverifiedPublishers();
+        }
 
-  ledger_->GetServerPublisherInfo(publisher_key, server_callback);
-}
-
-void Publisher::OnRefreshPublisherServerPublisher(
-    ledger::ServerPublisherInfoPtr info,
-    ledger::OnRefreshPublisherCallback callback) {
-  auto status = ledger::PublisherStatus::NOT_VERIFIED;
-  if (info) {
-    status = info->status;
-  }
-  callback(status);
+        callback(status);
+      });
 }
 
 void Publisher::SetPublisherServerListTimer(const bool rewards_enabled) {
-  if (!rewards_enabled) {
-    server_list_->ClearTimer();
-    return;
+  if (rewards_enabled) {
+    publisher_list_updater_->StartAutoUpdate();
+  } else {
+    publisher_list_updater_->StopAutoUpdate();
   }
-
-  server_list_->SetTimer(false);
 }
 
 void Publisher::CalcScoreConsts(const int min_duration_seconds) {
@@ -140,17 +138,18 @@ void Publisher::SaveVisit(
     return;
   }
 
-  auto server_callback =
-      std::bind(&Publisher::OnSaveVisitServerPublisher,
-                this,
-                _1,
-                publisher_key,
-                visit_data,
-                duration,
-                window_id,
-                callback);
+  auto on_server_info = std::bind(&Publisher::OnSaveVisitServerPublisher,
+      this, _1, publisher_key, visit_data, duration, window_id, callback);
 
-  ledger_->GetServerPublisherInfo(publisher_key, server_callback);
+  ledger_->SearchPublisherList(
+      publisher_key,
+      [this, publisher_key, on_server_info](bool publisher_exists) {
+        if (publisher_exists) {
+          ledger_->GetServerPublisherInfo(publisher_key, on_server_info);
+        } else {
+          on_server_info(nullptr);
+        }
+      });
 }
 
 ledger::ActivityInfoFilterPtr Publisher::CreateActivityFilter(
@@ -680,6 +679,13 @@ void Publisher::GetPublisherBanner(
                 publisher_key,
                 callback);
 
+  // NOTE: We do not attempt to search the prefix list before getting
+  // the publisher data because if the prefix list was not properly
+  // loaded then the user would not see the correct banner information
+  // for a verified publisher. Assuming that the user has explicitly
+  // requested this information by interacting with the UI, we should
+  // make a best effort to return correct and updated information even
+  // if the prefix list is incorrect.
   ledger_->GetServerPublisherInfo(publisher_key, banner_callback);
 }
 

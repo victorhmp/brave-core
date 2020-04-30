@@ -26,6 +26,7 @@ extern bool is_testing;
 extern int reconcile_time;  // minutes
 extern bool short_retries;
 
+using SearchPublisherListCallback = std::function<void(bool)>;
 using PublisherBannerCallback =
     std::function<void(ledger::PublisherBannerPtr banner)>;
 using GetTransactionHistoryCallback =
