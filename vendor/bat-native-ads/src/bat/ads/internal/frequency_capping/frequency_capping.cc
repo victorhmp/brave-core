@@ -5,14 +5,14 @@
 
 #include "bat/ads/internal/frequency_capping/frequency_capping.h"
 #include "bat/ads/creative_ad_notification_info.h"
-#include "bat/ads/internal/client.h"
+#include "bat/ads/internal/ads_impl.h"
 #include "bat/ads/internal/time_util.h"
 
 namespace ads {
 
 FrequencyCapping::FrequencyCapping(
-    const Client* const client)
-    : client_(client) {
+    const AdsImpl* const ads)
+    : ads_(ads) {
 }
 
 FrequencyCapping::~FrequencyCapping() = default;
@@ -42,7 +42,7 @@ std::deque<uint64_t> FrequencyCapping::GetCreativeSetHistory(
     const std::string& creative_set_id) const {
   std::deque<uint64_t> history;
 
-  auto creative_set_history = client_->GetCreativeSetHistory();
+  auto creative_set_history = ads_->get_client()->GetCreativeSetHistory();
   if (creative_set_history.find(creative_set_id)
       != creative_set_history.end()) {
     history = creative_set_history.at(creative_set_id);
@@ -54,7 +54,8 @@ std::deque<uint64_t> FrequencyCapping::GetCreativeSetHistory(
 std::deque<uint64_t> FrequencyCapping::GetAdsShownHistory() const {
   std::deque<uint64_t> history;
 
-  const std::deque<AdHistory> ads_history = client_->GetAdsShownHistory();
+  const std::deque<AdHistory> ads_history =
+      ads_->get_client()->GetAdsShownHistory();
   for (const auto& ad : ads_history) {
     if (ad.ad_content.ad_action != ConfirmationType::kViewed) {
       continue;
@@ -70,7 +71,8 @@ std::deque<uint64_t> FrequencyCapping::GetAdsHistory(
     const std::string& creative_instance_id) const {
   std::deque<uint64_t> history;
 
-  const std::deque<AdHistory> ads_history = client_->GetAdsShownHistory();
+  const std::deque<AdHistory> ads_history =
+      ads_->get_client()->GetAdsShownHistory();
   for (const auto& ad : ads_history) {
     if (ad.ad_content.ad_action != ConfirmationType::kViewed ||
         ad.ad_content.creative_instance_id != creative_instance_id) {
@@ -87,7 +89,7 @@ std::deque<uint64_t> FrequencyCapping::GetCampaign(
     const std::string& campaign_id) const {
   std::deque<uint64_t> history;
 
-  auto campaign_history = client_->GetCampaignHistory();
+  auto campaign_history = ads_->get_client()->GetCampaignHistory();
   if (campaign_history.find(campaign_id) != campaign_history.end()) {
     history = campaign_history.at(campaign_id);
   }
@@ -99,7 +101,7 @@ std::deque<uint64_t> FrequencyCapping::GetAdConversionHistory(
     const std::string& creative_set_id) const {
   std::deque<uint64_t> history;
 
-  auto creative_set_history = client_->GetAdConversionHistory();
+  auto creative_set_history = ads_->get_client()->GetAdConversionHistory();
   if (creative_set_history.find(creative_set_id)
       != creative_set_history.end()) {
     history = creative_set_history.at(creative_set_id);

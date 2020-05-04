@@ -12,12 +12,12 @@
 
 namespace ads {
 
-class Client;
+class AdsImpl;
 
 class FrequencyCapping {
  public:
   explicit FrequencyCapping(
-      const Client* const client);
+      const AdsImpl* const ads);
 
   ~FrequencyCapping();
 
@@ -41,7 +41,7 @@ class FrequencyCapping {
       const std::string& creative_set_id) const;
 
  private:
-  const Client* const client_;  // NOT OWNED
+  const AdsImpl* const ads_;  // NOT OWNED
 };
 
 }  // namespace ads

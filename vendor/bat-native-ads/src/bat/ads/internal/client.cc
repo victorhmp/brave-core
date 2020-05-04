@@ -47,11 +47,9 @@ ads::FilteredCategoryList::iterator FindFilteredCategory(
 namespace ads {
 
 Client::Client(
-    AdsImpl* ads,
-    AdsClient* ads_client)
+    AdsImpl* ads)
     : is_initialized_(false),
       ads_(ads),
-      ads_client_(ads_client),
       client_state_(new ClientState()) {
   (void)ads_;
 }
@@ -65,7 +63,7 @@ void Client::Initialize(
   LoadState();
 }
 
-void Client::AppendAdHistoryToAdsShownHistory(
+void Client::AppendAdHistoryToAdsHistory(
     const AdHistory& ad_history) {
   client_state_->ads_shown_history.push_front(ad_history);
 
@@ -77,7 +75,7 @@ void Client::AppendAdHistoryToAdsShownHistory(
   SaveState();
 }
 
-std::deque<AdHistory> Client::GetAdsShownHistory() const {
+const std::deque<AdHistory>& Client::GetAdsHistory() const {
   return client_state_->ads_shown_history;
 }
 
@@ -384,7 +382,7 @@ void Client::UpdateSeenAdNotification(
   SaveState();
 }
 
-std::map<std::string, uint64_t> Client::GetSeenAdNotifications() {
+const std::map<std::string, uint64_t>& Client::GetSeenAdNotifications() {
   return client_state_->seen_ad_notifications;
 }
 
@@ -411,7 +409,7 @@ void Client::UpdateSeenAdvertiser(
   SaveState();
 }
 
-std::map<std::string, uint64_t> Client::GetSeenAdvertisers() {
+const std::map<std::string, uint64_t>& Client::GetSeenAdvertisers() {
   return client_state_->seen_advertisers;
 }
 
@@ -471,7 +469,7 @@ void Client::SetUserModelLanguages(
   SaveState();
 }
 
-std::vector<std::string> Client::GetUserModelLanguages() {
+const std::vector<std::string>& Client::GetUserModelLanguages() {
   return client_state_->user_model_languages;
 }
 
@@ -486,7 +484,7 @@ void Client::AppendPageProbabilitiesToHistory(
   SaveState();
 }
 
-PageProbabilitiesList Client::GetPageProbabilitiesHistory() {
+const PageProbabilitiesList& Client::GetPageProbabilitiesHistory() {
   return client_state_->page_probabilities_history;
 }
 
@@ -504,7 +502,7 @@ void Client::AppendTimestampToCreativeSetHistory(
   SaveState();
 }
 
-std::map<std::string, std::deque<uint64_t>>
+const std::map<std::string, std::deque<uint64_t>>&
 Client::GetCreativeSetHistory() const {
   return client_state_->creative_set_history;
 }
@@ -528,7 +526,7 @@ void Client::AppendTimestampToAdConversionHistory(
   SaveState();
 }
 
-std::map<std::string, std::deque<uint64_t>>
+const std::map<std::string, std::deque<uint64_t>>&
 Client::GetAdConversionHistory() const {
   return client_state_->ad_conversion_history;
 }
@@ -547,7 +545,8 @@ void Client::AppendTimestampToCampaignHistory(
   SaveState();
 }
 
-std::map<std::string, std::deque<uint64_t>> Client::GetCampaignHistory() const {
+const std::map<std::string, std::deque<uint64_t>>&
+Client::GetCampaignHistory() const {
   return client_state_->campaign_history;
 }
 
@@ -581,7 +580,7 @@ void Client::SaveState() {
 
   auto json = client_state_->ToJson();
   auto callback = std::bind(&Client::OnStateSaved, this, _1);
-  ads_client_->Save(_client_resource_name, json, callback);
+  ads_->get_ads_client()->Save(_client_resource_name, json, callback);
 }
 
 void Client::OnStateSaved(
@@ -599,7 +598,7 @@ void Client::LoadState() {
   BLOG(3, "Loading client state");
 
   auto callback = std::bind(&Client::OnStateLoaded, this, _1, _2);
-  ads_client_->Load(_client_resource_name, callback);
+  ads_->get_ads_client()->Load(_client_resource_name, callback);
 }
 
 void Client::OnStateLoaded(

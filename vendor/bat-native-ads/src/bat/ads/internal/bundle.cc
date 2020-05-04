@@ -25,13 +25,11 @@ using std::placeholders::_1;
 namespace ads {
 
 Bundle::Bundle(
-    AdsImpl* ads,
-    AdsClient* ads_client)
+    AdsImpl* ads)
     : catalog_version_(0),
       catalog_ping_(0),
       catalog_last_updated_timestamp_in_seconds_(0),
-      ads_(ads),
-      ads_client_(ads_client) {
+      ads_(ads) {
 }
 
 Bundle::~Bundle() = default;
@@ -54,7 +52,7 @@ bool Bundle::UpdateFromCatalog(
   auto callback = std::bind(&Bundle::OnStateSaved,
       this, catalog_id_, catalog_version_, catalog_ping_,
           catalog_last_updated_timestamp_in_seconds_, _1);
-  ads_client_->SaveBundleState(std::move(bundle_state), callback);
+  ads_->get_ads_client()->SaveBundleState(std::move(bundle_state), callback);
 
   return true;
 }
@@ -66,7 +64,7 @@ void Bundle::Reset() {
       this, bundle_state->catalog_id, bundle_state->catalog_version,
           bundle_state->catalog_ping,
               bundle_state->catalog_last_updated_timestamp_in_seconds, _1);
-  ads_client_->SaveBundleState(std::move(bundle_state), callback);
+  ads_->get_ads_client()->SaveBundleState(std::move(bundle_state), callback);
 }
 
 std::string Bundle::GetCatalogId() const {
@@ -223,7 +221,7 @@ bool Bundle::DoesOsSupportCreativeSet(
 
 std::string Bundle::GetClientOS() {
   ClientInfo client_info;
-  ads_client_->GetClientInfo(&client_info);
+  ads_->get_ads_client()->GetClientInfo(&client_info);
 
   switch (client_info.platform) {
     case UNKNOWN: {

@@ -30,7 +30,7 @@
 #include "bat/ads/internal/filters/ads_history_filter_factory.h"
 #include "bat/ads/internal/filters/ads_history_date_range_filter.h"
 #include "bat/ads/internal/frequency_capping/exclusion_rule.h"
-#include "bat/ads/internal/frequency_capping/frequency_capping.h"
+#include "bat/ads/internal/frequency_capping/frequency_capping_utils.h"
 #include "bat/ads/internal/frequency_capping/exclusion_rules/per_hour_frequency_cap.h"
 #include "bat/ads/internal/frequency_capping/exclusion_rules/per_day_frequency_cap.h"
 #include "bat/ads/internal/frequency_capping/exclusion_rules/conversion_frequency_cap.h"
@@ -84,19 +84,17 @@ AdsImpl::AdsImpl(AdsClient* ads_client)
     : is_foreground_(false),
       active_tab_id_(0),
       next_easter_egg_timestamp_in_seconds_(0),
-      client_(std::make_unique<Client>(this, ads_client)),
-      bundle_(std::make_unique<Bundle>(this, ads_client)),
-      ads_serve_(std::make_unique<AdsServe>(this, ads_client, bundle_.get())),
-      frequency_capping_(std::make_unique<FrequencyCapping>(client_.get())),
-      ad_conversions_(std::make_unique<AdConversions>(
-          this, ads_client, client_.get())),
+      client_(std::make_unique<Client>(this)),
+      bundle_(std::make_unique<Bundle>(this)),
+      ads_serve_(std::make_unique<AdsServe>(this, bundle_.get())),
+      ad_conversions_(std::make_unique<AdConversions>(this)),
       page_classifier_(std::make_unique<PageClassifier>(this)),
       purchase_intent_classifier_(std::make_unique<PurchaseIntentClassifier>(
           kPurchaseIntentSignalLevel, kPurchaseIntentClassificationThreshold,
               kPurchaseIntentSignalDecayTimeWindow)),
       is_initialized_(false),
       is_confirmations_ready_(false),
-      ad_notifications_(std::make_unique<AdNotifications>(this, ads_client)),
+      ad_notifications_(std::make_unique<AdNotifications>(this)),
       ads_client_(ads_client) {
   set_ads_client_for_logging(ads_client_);
 }
@@ -113,6 +111,10 @@ Client* AdsImpl::get_client() const {
 
 AdNotifications* AdsImpl::get_ad_notifications() const {
   return ad_notifications_.get();
+}
+
+AdConversions* AdsImpl::get_ad_conversions() const {
+  return ad_conversions_.get();
 }
 
 PageClassifier* AdsImpl::get_page_classifier() const {
@@ -219,7 +221,7 @@ void AdsImpl::InitializeStep5(
 
 #if defined(OS_ANDROID)
 void AdsImpl::RemoveAllAdNotificationsAfterReboot() {
-  auto ads_shown_history = client_->GetAdsShownHistory();
+  auto ads_shown_history = client_->GetAdsHistory();
   if (!ads_shown_history.empty()) {
     uint64_t ad_shown_timestamp =
         ads_shown_history.front().timestamp_in_seconds;
@@ -515,7 +517,7 @@ AdsHistory AdsImpl::GetAdsHistory(
     const AdsHistory::SortType sort_type,
     const uint64_t from_timestamp,
     const uint64_t to_timestamp) {
-  auto history = client_->GetAdsShownHistory();
+  auto history = client_->GetAdsHistory();
 
   const auto date_range_filter = std::make_unique<AdsHistoryDateRangeFilter>();
   DCHECK(date_range_filter);
@@ -964,23 +966,23 @@ std::vector<std::unique_ptr<ExclusionRule>>
   std::vector<std::unique_ptr<ExclusionRule>> exclusion_rules;
 
   std::unique_ptr<ExclusionRule> daily_cap_frequency_cap =
-      std::make_unique<DailyCapFrequencyCap>(frequency_capping_.get());
+      std::make_unique<DailyCapFrequencyCap>(this);
   exclusion_rules.push_back(std::move(daily_cap_frequency_cap));
 
   std::unique_ptr<ExclusionRule> per_day_frequency_cap =
-      std::make_unique<PerDayFrequencyCap>(frequency_capping_.get());
+      std::make_unique<PerDayFrequencyCap>(this);
   exclusion_rules.push_back(std::move(per_day_frequency_cap));
 
   std::unique_ptr<ExclusionRule> per_hour_frequency_cap =
-      std::make_unique<PerHourFrequencyCap>(frequency_capping_.get());
+      std::make_unique<PerHourFrequencyCap>(this);
   exclusion_rules.push_back(std::move(per_hour_frequency_cap));
 
   std::unique_ptr<ExclusionRule> total_max_frequency_cap =
-      std::make_unique<TotalMaxFrequencyCap>(frequency_capping_.get());
+      std::make_unique<TotalMaxFrequencyCap>(this);
   exclusion_rules.push_back(std::move(total_max_frequency_cap));
 
   std::unique_ptr<ExclusionRule> conversion_frequency_cap =
-      std::make_unique<ConversionFrequencyCap>(frequency_capping_.get());
+      std::make_unique<ConversionFrequencyCap>(this);
   exclusion_rules.push_back(std::move(conversion_frequency_cap));
 
   return exclusion_rules;
@@ -1001,7 +1003,8 @@ CreativeAdNotificationList AdsImpl::GetEligibleAds(
         continue;
       }
 
-      BLOG(2, exclusion_rule->GetLastMessage());
+      BLOG(2, exclusion_rule->get_last_message());
+
       should_exclude = true;
     }
 
@@ -1213,18 +1216,15 @@ std::vector<std::unique_ptr<PermissionRule>>
   std::vector<std::unique_ptr<PermissionRule>> permission_rules;
 
   std::unique_ptr<PermissionRule> ads_per_hour_frequency_cap =
-      std::make_unique<AdsPerHourFrequencyCap>(this, ads_client_,
-          frequency_capping_.get());
+      std::make_unique<AdsPerHourFrequencyCap>(this);
   permission_rules.push_back(std::move(ads_per_hour_frequency_cap));
 
   std::unique_ptr<PermissionRule> minimum_wait_time_frequency_cap =
-      std::make_unique<MinimumWaitTimeFrequencyCap>(this, ads_client_,
-          frequency_capping_.get());
+      std::make_unique<MinimumWaitTimeFrequencyCap>(this);
   permission_rules.push_back(std::move(minimum_wait_time_frequency_cap));
 
   std::unique_ptr<PermissionRule> ads_per_day_frequency_cap =
-      std::make_unique<AdsPerDayFrequencyCap>(ads_client_,
-          frequency_capping_.get());
+      std::make_unique<AdsPerDayFrequencyCap>(this);
   permission_rules.push_back(std::move(ads_per_day_frequency_cap));
 
   return permission_rules;
@@ -1240,7 +1240,8 @@ bool AdsImpl::IsAllowedToServeAdNotifications() {
       continue;
     }
 
-    BLOG(2, permission_rule->GetLastMessage());
+    BLOG(2, permission_rule->get_last_message());
+
     is_allowed = false;
   }
 
@@ -1414,7 +1415,7 @@ void AdsImpl::AppendAdNotificationToHistory(
   ad_history.ad_content.ad_action = confirmation_type;
   ad_history.category_content.category = info.category;
 
-  client_->AppendAdHistoryToAdsShownHistory(ad_history);
+  client_->AppendAdHistoryToAdsHistory(ad_history);
 }
 
 bool AdsImpl::IsSupportedUrl(
