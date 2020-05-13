@@ -331,11 +331,11 @@ const locale: Record<string, string> = {
   close: 'Close',
   hide: 'Hide',
   dashboardSettingsTitle: 'Customize Dashboard',
-  showBackgroundImg: 'Show background image',
-  showBraveStats: 'Show Brave Stats',
-  showClock: 'Show Clock',
-  showTopSites: 'Show Top Sites',
-  showRewards: 'Show Rewards',
+  showBackgroundImg: 'Background image',
+  showBraveStats: 'Brave Stats',
+  showClock: 'Clock',
+  showTopSites: 'Top Sites',
+  showRewards: 'Rewards',
   rewardsWidgetEnableBrandedWallpaperTitle: 'Get paid to view this sponsored background image.'
 }
 
