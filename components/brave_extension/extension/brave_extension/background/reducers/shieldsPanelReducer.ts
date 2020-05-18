@@ -377,7 +377,8 @@ export default function shieldsPanelReducer (
       state = shieldsPanelState.saveCosmeticFilterRuleExceptions(state, action.tabId, action.exceptions)
       chrome.tabs.sendMessage(action.tabId, {
         type: 'cosmeticFilteringBackgroundReady',
-        scriptlet: action.scriptlet
+        scriptlet: action.scriptlet,
+        generichide: action.generichide
       })
       break
     }
@@ -392,7 +393,7 @@ export default function shieldsPanelReducer (
         .then((braveShieldsEnabled: boolean) => {
           const doCosmeticBlocking = braveShieldsEnabled && cosmeticBlockingEnabled
           if (doCosmeticBlocking) {
-            applyAdblockCosmeticFilters(action.tabId, getHostname(action.url))
+            applyAdblockCosmeticFilters(action.tabId, action.url)
           }
         })
       break
