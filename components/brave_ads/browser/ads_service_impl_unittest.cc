@@ -213,6 +213,15 @@ class MockRewardsService : public RewardsService {
 
   MOCK_METHOD1(GetAllPromotions, void(
       brave_rewards::GetAllPromotionsCallback callback));
+
+  MOCK_METHOD4(DiagnosticLog, void(
+      const std::string&,
+      const int,
+      const int,
+      const std::string&));
+
+  MOCK_METHOD1(LoadDiagnosticLog, void(
+      brave_rewards::LoadDiagnosticLogCallback callback));
 };
 
 class AdsServiceTest : public testing::Test {

@@ -103,7 +103,7 @@ void BatLedgerClientMojoProxy::Log(
     const char* file,
     const int line,
     const int verbose_level,
-    const std::string& message) const {
+    const std::string& message) {
   if (!Connected()) {
     return;
   }

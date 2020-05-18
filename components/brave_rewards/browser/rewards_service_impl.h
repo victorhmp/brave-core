@@ -16,6 +16,7 @@
 #include "base/containers/flat_set.h"
 #include "bat/ledger/ledger.h"
 #include "base/files/file_path.h"
+#include "base/files/file.h"
 #include "base/observer_list.h"
 #include "base/one_shot_event.h"
 #include "base/memory/weak_ptr.h"
@@ -527,11 +528,26 @@ class RewardsServiceImpl : public RewardsService,
                                     ledger::FetchIconCallback callback,
                                     bool success);
 
+  void DiagnosticLog(
+      const std::string& file,
+      const int line,
+      const int verbose_level,
+      const std::string& message) override;
+
+  void OnWriteToLogOnFileTaskRunner(
+    const bool success);
+
+  void LoadDiagnosticLog(LoadDiagnosticLogCallback callback) override;
+
+  void OnLoadDiagnosticLogOnFileTaskRunner(
+      LoadDiagnosticLogCallback callback,
+      const std::string& value);
+
   void Log(
       const char* file,
       const int line,
       const int verbose_level,
-      const std::string& message) const override;
+      const std::string& message) override;
 
   void SaveState(const std::string& name,
                  const std::string& value,
@@ -689,6 +705,7 @@ class RewardsServiceImpl : public RewardsService,
   bat_ledger::mojom::BatLedgerAssociatedPtr bat_ledger_;
   mojo::Remote<bat_ledger::mojom::BatLedgerService> bat_ledger_service_;
   const scoped_refptr<base::SequencedTaskRunner> file_task_runner_;
+  const base::FilePath diagnostic_log_path_;
   const base::FilePath ledger_state_path_;
   const base::FilePath publisher_state_path_;
   const base::FilePath publisher_info_db_path_;
