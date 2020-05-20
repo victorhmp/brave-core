@@ -132,6 +132,8 @@ source_set("ads") {
     "src/bat/ads/internal/ads_impl.h",
     "src/bat/ads/internal/ads_serve.cc",
     "src/bat/ads/internal/ads_serve.h",
+    "src/bat/ads/internal/ads_locale_helper.cc",
+    "src/bat/ads/internal/ads_locale_helper.h",
     "src/bat/ads/internal/bundle.cc",
     "src/bat/ads/internal/bundle.h",
     "src/bat/ads/internal/catalog_ad_notification_payload_info.h",
