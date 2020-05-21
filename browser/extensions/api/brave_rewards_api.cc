@@ -610,6 +610,12 @@ ExtensionFunction::ResponseAction BraveRewardsSaveAdsSettingFunction::Run() {
       const auto is_enabled =
           params->value == "true" && ads_service_->IsSupportedLocale();
       ads_service_->SetEnabled(is_enabled);
+    } else if (params->key == "shouldAllowSubdivisionAdTargeting") {
+      ads_service_->SetAllowSubdivisionAdTargeting(params->value == "true");
+    } else if (params->key == "didOverrideAdsSubdivision") {
+      ads_service_->SetOverrideAdsSubdivision(params->value == "true");
+    } else if (params->key == "isSubdivisionAdTargetingRegion") {
+      ads_service_->SetSubdivisionAdTargetingRegion(params->value == "true");
     }
   }
   return RespondNow(NoArguments());

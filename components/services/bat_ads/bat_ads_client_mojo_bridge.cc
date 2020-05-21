@@ -99,6 +99,64 @@ uint64_t BatAdsClientMojoBridge::GetAdsPerDay() const {
   return ads_per_day;
 }
 
+std::string BatAdsClientMojoBridge::GetCountrySubdivision() const {
+  if (!connected()) {
+    return 0;
+  }
+
+  std::string country_subdivision;
+  bat_ads_client_->GetCountrySubdivision(&country_subdivision);
+  return country_subdivision;
+}
+
+void BatAdsClientMojoBridge::SetCountrySubdivision(
+    const std::string& country_subdivision) {
+  if (!connected()) {
+    return;
+  }
+
+  bat_ads_client_->SetCountrySubdivision(country_subdivision);
+}
+
+bool BatAdsClientMojoBridge::ShouldAllowSubdivisionAdTargeting() const {
+  if (!connected()) {
+    return false;
+  }
+
+  bool should_allow;
+  bat_ads_client_->ShouldAllowSubdivisionAdTargeting(&should_allow);
+  return should_allow;
+}
+
+bool BatAdsClientMojoBridge::DidOverrideAdsSubdivision() const {
+  if (!connected()) {
+    return false;
+  }
+
+  bool did_override;
+  bat_ads_client_->DidOverrideAdsSubdivision(&did_override);
+  return did_override;
+}
+
+bool BatAdsClientMojoBridge::IsSubdivisionAdTargetingRegion() const {
+  if (!connected()) {
+    return false;
+  }
+
+  bool is_region;
+  bat_ads_client_->IsSubdivisionAdTargetingRegion(&is_region);
+  return is_region;
+}
+
+void BatAdsClientMojoBridge::SetSubdivisionAdTargetingRegion(
+    bool is_region) {
+  if (!connected()) {
+    return;
+  }
+
+  bat_ads_client_->SetSubdivisionAdTargetingRegion(is_region);
+}
+
 void BatAdsClientMojoBridge::SetIdleThreshold(
     const int threshold) {
   if (!connected()) {

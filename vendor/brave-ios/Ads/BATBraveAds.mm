@@ -37,6 +37,8 @@ static NSString * const kAdsEnabledPrefKey = @"BATAdsEnabled";
 static NSString * const kNumberOfAdsPerDayKey = @"BATNumberOfAdsPerDay";
 static NSString * const kNumberOfAdsPerHourKey = @"BATNumberOfAdsPerHour";
 
+static NSString * const kIsSubdivisionAdTargetingRegion = @"BATSsSubdivisionAdTargetingRegion";
+
 @interface BATAdNotification ()
 - (instancetype)initWithNotificationInfo:(const ads::AdNotificationInfo&)info;
 @end
@@ -183,6 +185,32 @@ BATClassAdsBridge(BOOL, isDebug, setDebug, _is_debug)
 - (BOOL)shouldAllowAdConversionTracking
 {
   return true;
+}
+
+- (const std::string)getCountrySubdivision
+{
+  // Not needed on mobile
+  return "";
+}
+
+- (void)setCountrySubdivision:(const std::string &)countrySubDivision
+{
+  // Not needed on mobile
+}
+
+- (BOOL)didOverrideAdsSubdivision
+{
+  return true;
+}
+
+- (BOOL)isSubdivisionAdTargetingRegion
+{
+  return [(NSNumber *)self.prefs[kIsSubdivisionAdTargetingRegion] boolValue]
+}
+
+- (void)setSubdivisionAdTargetingRegion:(bool)isRegion
+{
+  // Not needed on mobile
 }
 
 - (NSInteger)numberOfAllowableAdsPerDay

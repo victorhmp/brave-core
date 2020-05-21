@@ -329,6 +329,26 @@ void AdsServiceImpl::SetAllowAdConversionTracking(
   SetBooleanPref(prefs::kShouldAllowAdConversionTracking, should_allow);
 }
 
+void AdsServiceImpl::SetAllowSubdivisionAdTargeting(
+    const bool should_allow) {
+  SetBooleanPref(prefs::kShouldAllowSubdivisionAdTargeting, should_allow);
+}
+
+void AdsServiceImpl::SetCountrySubdivision(
+    const std::string& country_subdivision) {
+  SetStringPref(prefs::kCountrySubdivision, country_subdivision);
+}
+
+void AdsServiceImpl::SetOverrideAdsSubdivision(
+    const bool did_override) {
+  SetBooleanPref(prefs::kDidOverrideAdsSubdivision, did_override);
+}
+
+void AdsServiceImpl::SetSubdivisionAdTargetingRegion(
+    const bool is_region) {
+  SetBooleanPref(prefs::kIsSubdivisionAdTargetingRegion, is_region);
+}
+
 void AdsServiceImpl::SetAdsPerHour(
     const uint64_t ads_per_hour) {
   SetUint64Pref(prefs::kAdsPerHour, ads_per_hour);
@@ -491,6 +511,22 @@ uint64_t AdsServiceImpl::GetAdsPerHour() const {
 
 uint64_t AdsServiceImpl::GetAdsPerDay() const {
   return GetUint64Pref(prefs::kAdsPerDay);
+}
+
+bool AdsServiceImpl::ShouldAllowSubdivisionAdTargeting() const {
+  return GetBooleanPref(prefs::kShouldAllowSubdivisionAdTargeting);
+}
+
+std::string AdsServiceImpl::GetCountrySubdivision() const {
+  return GetStringPref(prefs::kCountrySubdivision);
+}
+
+bool AdsServiceImpl::DidOverrideAdsSubdivision() const {
+  return GetBooleanPref(prefs::kDidOverrideAdsSubdivision);
+}
+
+bool AdsServiceImpl::IsSubdivisionAdTargetingRegion() const {
+  return GetBooleanPref(prefs::kIsSubdivisionAdTargetingRegion);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

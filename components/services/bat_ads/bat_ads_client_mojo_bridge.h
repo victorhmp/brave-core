@@ -36,6 +36,14 @@ class BatAdsClientMojoBridge
   bool CanShowBackgroundNotifications() const override;
   uint64_t GetAdsPerHour() const override;
   uint64_t GetAdsPerDay() const override;
+  bool ShouldAllowSubdivisionAdTargeting() const override;
+  std::string GetCountrySubdivision() const override;
+  void SetCountrySubdivision(
+      const std::string& country_subdivision) override;
+  bool DidOverrideAdsSubdivision() const override;
+  bool IsSubdivisionAdTargetingRegion() const override;
+  void SetSubdivisionAdTargetingRegion(
+      bool is_region) override;
 
   void GetClientInfo(
       ads::ClientInfo* info) const override;

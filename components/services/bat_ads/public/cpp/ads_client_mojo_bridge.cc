@@ -125,6 +125,73 @@ void AdsClientMojoBridge::GetAdsPerDay(GetAdsPerDayCallback callback) {
   std::move(callback).Run(ads_client_->GetAdsPerDay());
 }
 
+bool AdsClientMojoBridge::GetCountrySubdivision(
+    std::string* out_country_subdivision) {
+  DCHECK(out_country_subdivision);
+  *out_country_subdivision = ads_client_->GetCountrySubdivision();
+  return true;
+}
+
+void AdsClientMojoBridge::GetCountrySubdivision(
+    GetCountrySubdivisionCallback callback) {
+  std::move(callback).Run(ads_client_->GetCountrySubdivision());
+}
+
+void AdsClientMojoBridge::SetCountrySubdivision(
+    const std::string& country_subdivision) {
+  ads_client_->SetCountrySubdivision(std::move(country_subdivision));
+}
+
+bool AdsClientMojoBridge::ShouldAllowSubdivisionAdTargeting(
+    bool* should_allow) {
+  if (!should_allow) {
+    return false;
+  }
+
+  *should_allow = ads_client_->ShouldAllowSubdivisionAdTargeting();
+  return true;
+}
+
+void AdsClientMojoBridge::ShouldAllowSubdivisionAdTargeting(
+    ShouldAllowSubdivisionAdTargetingCallback callback) {
+  std::move(callback).Run(ads_client_->ShouldAllowSubdivisionAdTargeting());
+}
+
+bool AdsClientMojoBridge::DidOverrideAdsSubdivision(
+    bool* did_override) {
+  if (!did_override) {
+    return false;
+  }
+
+  *did_override = ads_client_->DidOverrideAdsSubdivision();
+  return true;
+}
+
+void AdsClientMojoBridge::DidOverrideAdsSubdivision(
+    DidOverrideAdsSubdivisionCallback callback) {
+  std::move(callback).Run(ads_client_->DidOverrideAdsSubdivision());
+}
+
+bool AdsClientMojoBridge::IsSubdivisionAdTargetingRegion(
+    bool* is_region) {
+  if (!is_region) {
+    return false;
+  }
+
+  *is_region = ads_client_->IsSubdivisionAdTargetingRegion();
+  return true;
+}
+
+void AdsClientMojoBridge::IsSubdivisionAdTargetingRegion(
+    IsSubdivisionAdTargetingRegionCallback callback) {
+  std::move(callback).Run(ads_client_->IsSubdivisionAdTargetingRegion());
+}
+
+void AdsClientMojoBridge::SetSubdivisionAdTargetingRegion(
+    bool is_region) {
+  ads_client_->SetSubdivisionAdTargetingRegion(std::move(is_region));
+}
+
 bool AdsClientMojoBridge::IsNetworkConnectionAvailable(
     bool* out_is_available) {
   DCHECK(out_is_available);

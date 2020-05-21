@@ -61,6 +61,22 @@ class AdsService : public KeyedService {
   virtual void SetAllowAdConversionTracking(
       const bool should_allow) = 0;
 
+  virtual bool ShouldAllowSubdivisionAdTargeting() const = 0;
+  virtual void SetAllowSubdivisionAdTargeting(
+      const bool should_allow) = 0;
+
+  virtual std::string GetCountrySubdivision() const = 0;
+  virtual void SetCountrySubdivision(
+      const std::string& country_subdivision) = 0;
+
+  virtual bool DidOverrideAdsSubdivision() const = 0;
+  virtual void SetOverrideAdsSubdivision(
+      const bool did_override) = 0;
+
+  virtual bool IsSubdivisionAdTargetingRegion() const = 0;
+  virtual void SetSubdivisionAdTargetingRegion(
+      const bool is_region) = 0;
+
   virtual uint64_t GetAdsPerHour() const = 0;
   virtual void SetAdsPerHour(
       const uint64_t ads_per_hour) = 0;

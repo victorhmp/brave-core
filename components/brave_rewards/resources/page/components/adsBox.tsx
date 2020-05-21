@@ -17,7 +17,7 @@ import {
   ShowAdsHistory,
   Tokens
 } from '../../ui/components'
-import { Grid, Column, Select, ControlWrapper } from 'brave-ui/components'
+import { Grid, Column, Select, ControlWrapper, Checkbox } from 'brave-ui/components'
 
 // Utils
 import * as utils from '../utils'
@@ -78,10 +78,18 @@ class AdsBox extends React.Component<Props, State> {
 
   onAdsSettingChange = (key: string, value: boolean) => {
     let newValue: any = value
-    const { adsEnabled } = this.props.rewardsData.adsData
+    const {
+      adsEnabled,
+      shouldAllowSubdivisionAdTargeting,
+      didOverrideAdsSubdivision
+    } = this.props.rewardsData.adsData
 
     if (key === 'adsEnabled') {
       newValue = !adsEnabled
+    } else if (key === 'shouldAllowSubdivisionAdTargeting') {
+      newValue = !shouldAllowSubdivisionAdTargeting
+    } else if (key == 'adsSubdivision') {
+      this.props.actions.onAdsSettingSave('didOverrideAdsSubdivision', !didOverrideAdsSubdivision);
     }
 
     this.props.actions.onAdsSettingSave(key, newValue)
@@ -92,10 +100,15 @@ class AdsBox extends React.Component<Props, State> {
       return null
     }
 
-    const { adsPerHour } = this.props.rewardsData.adsData
+    const {
+      adsPerHour,
+      shouldAllowSubdivisionAdTargeting,
+      adsSubdivision,
+      isSubdivisionAdTargetingRegion
+    } = this.props.rewardsData.adsData
 
     return (
-      <Grid columns={1} customStyle={{ margin: '0 auto' }}>
+      <Grid columns={1}>
         <Column size={1} customStyle={{ justifyContent: 'center', flexWrap: 'wrap' }}>
           <ControlWrapper text={getLocale('adsPerHour')}>
             <Select
@@ -105,13 +118,46 @@ class AdsBox extends React.Component<Props, State> {
               {['1', '2', '3', '4', '5'].map((num: string) => {
                 return (
                   <div key={`num-per-hour-${num}`} data-value={num}>
-                   {getLocale(`adsPerHour${num}`)}
+                  {getLocale(`adsPerHour${num}`)}
                   </div>
                 )
               })}
             </Select>
           </ControlWrapper>
         </Column>
+
+        <div style={{display: isSubdivisionAdTargetingRegion ? 'block' : 'none' }}>
+          <Column size={1} customStyle={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+            <ControlWrapper text={getLocale('adsAllowSubdivisionTargetingTitle')}>
+              <Checkbox
+                value={{
+                  shouldAllowSubdivisionAdTargeting: shouldAllowSubdivisionAdTargeting
+                }}
+                multiple={true}
+                onChange={this.onAdsSettingChange}
+              >
+                <div data-key='shouldAllowSubdivisionAdTargeting'>{getLocale('adsAllowSubdivisionTargetingLabel')}</div>
+              </Checkbox>
+
+              <Select
+                value={(adsSubdivision || '').toString()}
+                onChange={this.onAdsSettingChange.bind(this, 'adsSubdivision')}
+              >
+                {[['US-AL', 'Alabama'], ['US-AK', 'Alaska'], ['US-AZ', 'Arizona'], ['US-AR', 'Arkansas'], ['US-CA', 'California'], ['US-CO', 'Colorado'], ['US-CT', 'Connecticut'], ['US-DE', 'Delaware'], ['US-FL', 'Florida'], ['US-GA', 'Georgia'], ['US-HI', 'Hawaii'], ['US-ID', 'Idaho'], ['US-IL', 'Illinois'], ['US-IN', 'Indiana'], ['US-IA', 'Iowa'], ['US-KS', 'Kansas'], ['US-KY', 'Kentucky'], ['US-LA', 'Louisiana'], ['US-ME', 'Maine'], ['US-MD', 'Maryland'], ['US-MA', 'Massachusetts'], ['US-MI', 'Michigan'], ['US-MN', 'Minnesota'], ['US-MS', 'Mississippi'], ['US-MO', 'Missouri'], ['US-MT', 'Montana'], ['US-NE', 'Nebraska'], ['US-NV', 'Nevada'], ['US-NH', 'New Hampshire'], ['US-NJ', 'New Jersey'], ['US-NM', 'New Mexico'], ['US-NY', 'New York'], ['US-NC', 'North Carolina'], ['US-ND', 'North Dakota'], ['US-OH', 'Ohio'], ['US-OK', 'Oklahoma'], ['US-OR', 'Oregon'], ['US-PA', 'Pennsylvania'], ['US-RI', 'Rhode Island'], ['US-SC', 'South Carolina'], ['US-SD', 'South Dakota'], ['US-TN', 'Tennessee'], ['US-TX', 'Texas'], ['US-UT', 'Utah'], ['US-VT', 'Vermont'], ['US-VA', 'Virginia'], ['US-WA', 'Washington'], ['US-WV', 'West Virginia'], ['US-WI', 'Wisconsin'], ['US-WY', 'Wyoming']].map((subdivision: Array<String>) => {
+                  return (
+                    // TODO(Moritz Haller): if previously set to value that is not in list above
+                    // it will show the first item, i.e. "Alabama". Same for Android.
+                    <div key={`${subdivision[0]}`} data-value={subdivision[0]}>
+                    {`${subdivision[1]}`}
+                    </div>
+                  )
+                })}
+              </Select>
+            </ControlWrapper>
+          </Column>
+
+          <div>{getLocale('adsAllowSubdivisionTargetingDescription')} <a href={'#'} target={'_blank'}>{getLocale('adsAllowSubdivisionTargetingLearn')}</a></div>
+        </div>
       </Grid>
     )
   }

@@ -39,7 +39,17 @@ interface BatAdsClient {
   LoadJsonSchema(string name) => (string json);
   [Sync]
   CanShowBackgroundNotifications() => (bool can_show);
+  [Sync]
+  ShouldAllowSubdivisionAdTargeting() => (bool should_allow);
+  [Sync]
+  GetCountrySubdivision() => (string country_subdivision);
+  [Sync]
+  DidOverrideAdsSubdivision() => (bool did_override);
+  [Sync]
+  IsSubdivisionAdTargetingRegion() => (bool did_override);
 
+  SetCountrySubdivision(string country_subdivision);
+  SetSubdivisionAdTargetingRegion(bool is_country);
   SetIdleThreshold(int32 threshold);
   LoadUserModelForLanguage(string language) => (int32 result, string value);
   ShowNotification(string notification_info);

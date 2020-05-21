@@ -43,4 +43,10 @@ class NativeAdsClient : public ads::AdsClient {
   void GetCreativeAdNotifications(const std::vector<std::string> & categories, ads::GetCreativeAdNotificationsCallback callback) override;
   void GetAdConversions(ads::GetAdConversionsCallback callback) override;
   void Log(const char * file, const int line, const int verbose_level, const std::string & message) const override;
+  bool ShouldAllowSubdivisionAdTargeting() const override;
+  std::string GetCountrySubdivision() const override;
+  void SetCountrySubdivision(const std::string & country_subdivision) override;
+  bool DidOverrideAdsSubdivision() const override;
+  bool IsSubdivisionAdTargetingRegion() const override;
+  void SetSubdivisionAdTargetingRegion(bool is_region) override;
 };

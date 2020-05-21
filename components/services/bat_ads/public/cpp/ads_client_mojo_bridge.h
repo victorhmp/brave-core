@@ -53,6 +53,26 @@ class AdsClientMojoBridge
       GetAdsPerHourCallback callback) override;
   bool GetAdsPerDay(
       uint64_t* out_ads_per_day) override;
+  bool GetCountrySubdivision(
+      std::string* out_country_subdivision) override;
+  void GetCountrySubdivision(
+      GetCountrySubdivisionCallback callback) override;
+  void SetCountrySubdivision(
+      const std::string& country_subdivision) override;
+  bool ShouldAllowSubdivisionAdTargeting(
+      bool* out_should_allow) override;
+  void ShouldAllowSubdivisionAdTargeting(
+      ShouldAllowSubdivisionAdTargetingCallback callback) override;
+  bool DidOverrideAdsSubdivision(
+      bool* out_did_override) override;
+  void DidOverrideAdsSubdivision(
+      DidOverrideAdsSubdivisionCallback callback) override;
+  bool IsSubdivisionAdTargetingRegion(
+      bool* out_is_region) override;
+  void IsSubdivisionAdTargetingRegion(
+      IsSubdivisionAdTargetingRegionCallback callback) override;
+  void SetSubdivisionAdTargetingRegion(
+      bool is_region) override;
   void GetAdsPerDay(
       GetAdsPerDayCallback callback) override;
   bool IsNetworkConnectionAvailable(

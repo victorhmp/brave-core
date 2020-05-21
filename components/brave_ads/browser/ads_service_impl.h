@@ -147,6 +147,19 @@ class AdsServiceImpl : public AdsService,
   uint64_t GetAdsPerHour() const override;
   uint64_t GetAdsPerDay() const override;
 
+  bool ShouldAllowSubdivisionAdTargeting() const override;
+  void SetAllowSubdivisionAdTargeting(
+      const bool should_allow) override;
+  std::string GetCountrySubdivision() const override;
+  void SetCountrySubdivision(
+      const std::string& country_subdivision) override;
+  bool DidOverrideAdsSubdivision() const override;
+  void SetOverrideAdsSubdivision(
+      const bool did_override) override;
+  bool IsSubdivisionAdTargetingRegion() const override;
+  void SetSubdivisionAdTargetingRegion(
+      const bool is_region) override;
+
   // KeyedService implementation
   void Shutdown() override;
 

@@ -20,9 +20,9 @@
 #include "bat/ads/mojom.h"
 #include "bat/ads/ad_notification_info.h"
 #include "bat/ads/internal/ads_serve.h"
-#include "bat/ads/internal/ads_locale_helper.h"
 #include "bat/ads/internal/bundle.h"
 #include "bat/ads/internal/client.h"
+#include "bat/ads/internal/country_subdivision.h"
 #include "bat/ads/internal/ad_conversions.h"
 #include "bat/ads/internal/ad_notification_result_type.h"
 #include "bat/ads/internal/ad_notifications.h"
@@ -35,7 +35,7 @@ namespace ads {
 class Client;
 class Bundle;
 class AdsServe;
-class AdsLocaleHelper;
+class CountrySubdivision;
 class AdNotifications;
 class AdConversions;
 class FrequencyCapping;
@@ -250,7 +250,7 @@ class AdsImpl : public Ads {
   std::unique_ptr<Client> client_;
   std::unique_ptr<Bundle> bundle_;
   std::unique_ptr<AdsServe> ads_serve_;
-  std::unique_ptr<AdsLocaleHelper> ads_locale_helper_;
+  std::unique_ptr<CountrySubdivision> country_subdivision_;
   std::unique_ptr<FrequencyCapping> frequency_capping_;
   std::unique_ptr<AdConversions> ad_conversions_;
   std::unique_ptr<PageClassifier> page_classifier_;

@@ -60,6 +60,29 @@ class ADS_EXPORT AdsClient {
   // Should return the maximum number of ads that can be shown per day
   virtual uint64_t GetAdsPerDay() const = 0;
 
+  // Should return the country subdivision
+  virtual std::string GetCountrySubdivision() const = 0;
+
+  // Should set the country subdivision
+  virtual void SetCountrySubdivision(
+      const std::string&) = 0;
+
+  // Should return |true| if subregion targeting is enabled; otherwise,
+  // should return |false|
+  virtual bool ShouldAllowSubdivisionAdTargeting() const = 0;
+
+  // Should return |true| if user manually set country subdivision; otherwise,
+  // should return |false|
+  virtual bool DidOverrideAdsSubdivision() const = 0;
+
+  // Should return |true| if locale is country subdivision ad targeting region;
+  // otherwise, should return |false|
+  virtual bool IsSubdivisionAdTargetingRegion() const = 0;
+
+  // Should set whether or not locale is subdivision ad targeting region
+  virtual void SetSubdivisionAdTargetingRegion(
+      bool) = 0;
+
   // Set the idle threshold specified in seconds for how long a user should be
   // idle before |OnUnIdle| is called. This call is optional for mobile devices
   virtual void SetIdleThreshold(

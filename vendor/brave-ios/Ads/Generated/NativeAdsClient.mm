@@ -118,3 +118,27 @@ void NativeAdsClient::GetAdConversions(ads::GetAdConversionsCallback callback) {
 void NativeAdsClient::Log(const char * file, const int line, const int verbose_level, const std::string & message) const {
   [bridge_ log:file line:line verboseLevel:verbose_level message:message];
 }
+
+bool NativeAdsClient::ShouldAllowSubdivisionAdTargeting() const {
+  return [bridge_ shouldAllowSubdivisionAdTargeting];
+}
+
+std::string NativeAdsClient::GetCountrySubdivision() const {
+  return [bridge_ getCountrySubdivision];
+}
+
+void NativeAdsClient::SetCountrySubdivision(const std::string & country_subdivision) {
+  return [bridge_ setCountrySubdivision:country_subdivision];
+}
+
+bool NativeAdsClient::DidOverrideAdsSubdivision() const {
+  return [bridge_ didOverrideAdsSubdivision];
+}
+
+bool NativeAdsClient::IsSubdivisionAdTargetingRegion() const {
+  return [bridge_ isSubdivisionAdTargetingRegion];
+}
+
+void NativeAdsClient::SetSubdivisionAdTargetingRegion(bool is_region) {
+  return [bridge_ setSubdivisionAdTargetingRegion:is_region];
+}

@@ -96,6 +96,9 @@ describe('rewards reducer', () => {
         initState.adsData = {
           adsEnabled: false,
           adsPerHour: 2,
+          adsSubdivision: 'CA',
+          shouldAllowSubdivisionAdTargeting: true,
+          isSubdivisionAdTargetingRegion: true,
           adsUIEnabled: false,
           adsIsSupported: false,
           adsEstimatedPendingRewards: 0,
@@ -107,6 +110,9 @@ describe('rewards reducer', () => {
         expectedState.adsData = {
           adsEnabled: true,
           adsPerHour: 5,
+          adsSubdivision: 'CA',
+          shouldAllowSubdivisionAdTargeting: true,
+          isSubdivisionAdTargetingRegion: true,
           adsUIEnabled: true,
           adsIsSupported: true,
           adsEstimatedPendingRewards: 0,
@@ -122,6 +128,9 @@ describe('rewards reducer', () => {
             adsData: {
               adsEnabled: true,
               adsPerHour: 5,
+              adsSubdivision: 'CA',
+              shouldAllowSubdivisionAdTargeting: true,
+              isSubdivisionAdTargetingRegion: true,
               adsUIEnabled: true,
               adsIsSupported: true
             }
@@ -140,6 +149,8 @@ describe('rewards reducer', () => {
         expectedState.adsData = {
           adsEnabled: false,
           adsPerHour: 2,
+          shouldAllowSubdivisionAdTargeting: true,
+          isSubdivisionAdTargetingRegion: true,
           adsUIEnabled: true,
           adsIsSupported: true,
           adsEstimatedPendingRewards: 0,
@@ -155,6 +166,8 @@ describe('rewards reducer', () => {
             adsData: {
               adsEnabled: false,
               adsPerHour: 2,
+              shouldAllowSubdivisionAdTargeting: true,
+              isSubdivisionAdTargetingRegion: true,
               adsUIEnabled: true,
               adsIsSupported: true
             }
@@ -174,6 +187,8 @@ describe('rewards reducer', () => {
         adsEnabled: false,
         shouldOptOutfAdConversions: true,
         adsPerHour: 2,
+        shouldAllowSubdivisionAdTargeting: true,
+        isSubdivisionAdTargetingRegion: true,
         adsUIEnabled: false,
         adsIsSupported: false,
         adsEstimatedPendingRewards: 0,

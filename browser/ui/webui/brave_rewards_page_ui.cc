@@ -307,6 +307,11 @@ class RewardsDOMHandler : public WebUIMessageHandler,
 namespace {
 
 const int kDaysOfAdsHistory = 7;
+const char kShouldAllowSubdivisionAdTargeting[] =
+    "shouldAllowSubdivisionAdTargeting";
+const char kAdsSubdivision[] = "adsSubdivision";
+const char kDidOverrideAdsSubdivision[] = "didOverrideAdsSubdivision";
+const char kIsSubdivisionAdTargetingRegion[] = "isSubdivisionAdTargetingRegion";
 
 }  // namespace
 
@@ -1103,6 +1108,22 @@ void RewardsDOMHandler::GetAdsData(const base::ListValue *args) {
   auto ads_per_hour = ads_service_->GetAdsPerHour();
   ads_data.SetInteger("adsPerHour", ads_per_hour);
 
+  auto ads_subdivision = ads_service_->GetCountrySubdivision();
+  ads_data.SetString(kAdsSubdivision, ads_subdivision);
+
+  const auto should_allow_subdivision_ad_targeting =
+      ads_service_->ShouldAllowSubdivisionAdTargeting();
+  ads_data.SetBoolean(kShouldAllowSubdivisionAdTargeting,
+      should_allow_subdivision_ad_targeting);
+
+  auto did_override_ads_subdivision = ads_service_->DidOverrideAdsSubdivision();
+  ads_data.SetInteger(kDidOverrideAdsSubdivision, did_override_ads_subdivision);
+
+  auto is_subdivision_ad_targeting_region =
+      ads_service_->IsSubdivisionAdTargetingRegion();
+  ads_data.SetInteger(kIsSubdivisionAdTargetingRegion,
+      is_subdivision_ad_targeting_region);
+
 #if BUILDFLAG(BRAVE_ADS_ENABLED)
     auto ads_ui_enabled = true;
 #else
@@ -1322,6 +1343,14 @@ void RewardsDOMHandler::SaveAdsSetting(const base::ListValue* args) {
     ads_service_->SetEnabled(is_enabled);
   } else if (key == "adsPerHour") {
     ads_service_->SetAdsPerHour(std::stoull(value));
+  } else if (key == kAdsSubdivision) {
+    ads_service_->SetCountrySubdivision(value);
+  } else if (key == kShouldAllowSubdivisionAdTargeting) {
+    ads_service_->SetAllowSubdivisionAdTargeting(value == "true");
+  } else if (key == kDidOverrideAdsSubdivision) {
+    ads_service_->SetOverrideAdsSubdivision(value == "true");
+  } else if (key == kIsSubdivisionAdTargetingRegion) {
+    ads_service_->SetSubdivisionAdTargetingRegion(value == "true");
   }
 
   base::ListValue* emptyArgs = nullptr;
