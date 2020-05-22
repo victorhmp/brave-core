@@ -18,6 +18,10 @@ import("//extensions/buildflags/buildflags.gni")
 import("//third_party/widevine/cdm/widevine.gni")
 import("//third_party/protobuf/proto_library.gni")
 
+declare_args() {
+  brave_stats_api_key = ""
+}
+
 source_set("browser_process") {
   visibility = [
     "//chrome/browser/*",
@@ -27,6 +31,8 @@ source_set("browser_process") {
     "//brave/components/brave_rewards/test:*",
     "//brave/test:*",
   ]
+
+  defines = [ "BRAVE_STATS_API_KEY=\"$brave_stats_api_key\"" ]
 
   sources = [
     "autocomplete/brave_autocomplete_provider_client.cc",

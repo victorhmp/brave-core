@@ -20,6 +20,7 @@
 #include "base/system/sys_info.h"
 #include "base/task/post_task.h"
 #include "base/values.h"
+#include "brave/browser/brave_stats_updater_util.h"
 #include "brave/common/network_constants.h"
 #include "brave/common/pref_names.h"
 #include "brave_base/random.h"
@@ -65,23 +66,6 @@ const char kDefaultPromoCode[] = "BRV001";
 
 namespace {
 
-std::string GetPlatformIdentifier() {
-#if defined(OS_WIN)
-  if (base::SysInfo::OperatingSystemArchitecture() == "x86")
-    return "winia32";
-  else
-    return "winx64";
-#elif defined(OS_MACOSX)
-  return "osx";
-#elif defined(OS_ANDROID)
-  return "android";
-#elif defined(OS_LINUX)
-  return "linux";
-#else
-  return std::string();
-#endif
-}
-
 std::string BuildReferralEndpoint(const std::string& path) {
   std::unique_ptr<base::Environment> env(base::Environment::Create());
   std::string referral_server;
@@ -91,6 +75,7 @@ std::string BuildReferralEndpoint(const std::string& path) {
     referral_server = kBraveReferralsServer;
   if (env->HasVar("BRAVE_REFERRALS_LOCAL"))
     proto = "http";
+
   return base::StringPrintf("%s://%s%s", proto.c_str(),
                             referral_server.c_str(),
                             path.c_str());
@@ -99,15 +84,6 @@ std::string BuildReferralEndpoint(const std::string& path) {
 }  // namespace
 
 namespace brave {
-
-std::string GetAPIKey() {
-  std::string api_key = BRAVE_REFERRALS_API_KEY;
-  std::unique_ptr<base::Environment> env(base::Environment::Create());
-  if (env->HasVar("BRAVE_REFERRALS_API_KEY"))
-    env->GetVar("BRAVE_REFERRALS_API_KEY", &api_key);
-
-  return api_key;
-}
 
 BraveReferralsService::BraveReferralsService(PrefService* pref_service)
     : initialized_(false),
@@ -520,7 +496,7 @@ void BraveReferralsService::MaybeDeletePromoCodePref() const {
 }
 
 std::string BraveReferralsService::BuildReferralInitPayload() const {
-  std::string api_key = GetAPIKey();
+  std::string api_key = brave::GetAPIKey();
 
   base::Value root(base::Value::Type::DICTIONARY);
   root.SetKey("api_key", base::Value(api_key));
@@ -535,7 +511,7 @@ std::string BraveReferralsService::BuildReferralInitPayload() const {
 
 std::string BraveReferralsService::BuildReferralFinalizationCheckPayload()
     const {
-  std::string api_key = GetAPIKey();
+  std::string api_key = brave::GetAPIKey();
 
   base::Value root(base::Value::Type::DICTIONARY);
   root.SetKey("api_key", base::Value(api_key));
