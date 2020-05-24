@@ -1,0 +1,14 @@
+diff --git a/extensions/browser/api/socket/udp_socket.h b/extensions/browser/api/socket/udp_socket.h
+index bc655989882c3f6e80b0144797cce54922a15153..433c3a56943aa87c8560ac13f6b561de9d5f2f5d 100644
+--- a/extensions/browser/api/socket/udp_socket.h
++++ b/extensions/browser/api/socket/udp_socket.h
+@@ -61,6 +61,9 @@ class UDPSocket : public Socket, public network::mojom::UDPSocketListener {
+   // Sets broadcast to |enabled|. Can only be called after a successful Bind().
+   void SetBroadcast(bool enabled, net::CompletionOnceCallback callback);
+ 
++  // Address reuse options must be set before Bind()/Connect() is called.
++  int SetAllowAddressReuse(bool allowed);
++
+   const std::vector<std::string>& GetJoinedGroups() const;
+ 
+  protected:

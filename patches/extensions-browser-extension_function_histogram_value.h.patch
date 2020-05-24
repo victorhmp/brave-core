@@ -1,0 +1,12 @@
+diff --git a/extensions/browser/extension_function_histogram_value.h b/extensions/browser/extension_function_histogram_value.h
+index ffd2d40c50ab4cc692ff4b0921b9dc5a53bb599b..1e64f88fcd61e3fce99384c41da34f47c90f3899 100644
+--- a/extensions/browser/extension_function_histogram_value.h
++++ b/extensions/browser/extension_function_histogram_value.h
+@@ -1500,6 +1500,7 @@ enum HistogramValue {
+   PRINTING_CANCELJOB = 1437,
+   WEBCAMPRIVATE_RESTORE_CAMERA_PRESET = 1449,
+   WEBCAMPRIVATE_SET_CAMERA_PRESET = 1450,
++  SOCKETS_UDP_SETALLOWADDRESSREUSE = 1451,
+   // Last entry: Add new entries above, then run:
+   // python tools/metrics/histograms/update_extension_histograms.py
+   ENUM_BOUNDARY = 1440

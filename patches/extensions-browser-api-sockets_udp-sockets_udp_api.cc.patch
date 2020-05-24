@@ -1,0 +1,35 @@
+diff --git a/extensions/browser/api/sockets_udp/sockets_udp_api.cc b/extensions/browser/api/sockets_udp/sockets_udp_api.cc
+index aedfe02ea34fa88c2b902797256b866dcf003591..b8db6124bcd455568712470a9ff34abe544aff91 100644
+--- a/extensions/browser/api/sockets_udp/sockets_udp_api.cc
++++ b/extensions/browser/api/sockets_udp/sockets_udp_api.cc
+@@ -566,5 +566,30 @@ void SocketsUdpSetBroadcastFunction::OnCompleted(int net_result) {
+   AsyncWorkCompleted();
+ }
+ 
++SocketsUdpSetAllowAddressReuseFunction::
++    SocketsUdpSetAllowAddressReuseFunction() {}
++
++SocketsUdpSetAllowAddressReuseFunction::
++    ~SocketsUdpSetAllowAddressReuseFunction() {}
++
++bool SocketsUdpSetAllowAddressReuseFunction::Prepare() {
++  params_ = api::sockets_udp::SetAllowAddressReuse::Params::Create(*args_);
++  EXTENSION_FUNCTION_VALIDATE(params_.get());
++  return true;
++}
++
++void SocketsUdpSetAllowAddressReuseFunction::Work() {
++  ResumableUDPSocket* socket = GetUdpSocket(params_->socket_id);
++  if (!socket) {
++    error_ = kSocketNotFoundError;
++    return;
++  }
++
++  int net_result = socket->SetAllowAddressReuse(params_->allowed);
++  if (net_result != net::OK)
++    error_ = net::ErrorToString(net_result);
++  results_ = sockets_udp::SetAllowAddressReuse::Results::Create(net_result);
++}
++
+ }  // namespace api
+ }  // namespace extensions

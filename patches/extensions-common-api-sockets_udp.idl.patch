@@ -1,0 +1,32 @@
+diff --git a/extensions/common/api/sockets_udp.idl b/extensions/common/api/sockets_udp.idl
+index 784a31d25d77573f467e6a703e519cad86c674f0..696756dd5db2014a8f4fd0af6357a4b72fb34778 100644
+--- a/extensions/common/api/sockets_udp.idl
++++ b/extensions/common/api/sockets_udp.idl
+@@ -124,6 +124,11 @@ namespace sockets.udp {
+   // A negative value indicates an error.
+   callback SetMulticastLoopbackModeCallback = void (long result);
+ 
++  // Callback from the <code>setAllowAddressReuse</code> method.
++  // |result| : The result code returned from the underlying network call.
++  // A negative value indicates an error.
++  callback SetAllowAddressReuseCallback = void (long result);
++
+   // Callback from the <code>getJoinedGroupsCallback</code> method.
+   // |groups| : Array of groups the socket joined.
+   callback GetJoinedGroupsCallback = void (DOMString[] groups);
+@@ -290,6 +295,15 @@ namespace sockets.udp {
+         boolean enabled,
+         SetMulticastLoopbackModeCallback callback);
+ 
++    // Sets whether the socket should allow address reuse.
++    // |socketId| : The socket ID.
++    // |allowed| : Indicate whether to allow or disallow address reuse.
++    // |callback| : Called when the configuration operation completes.
++    static void setAllowAddressReuse(
++        long socketId,
++        boolean allowed,
++        SetAllowAddressReuseCallback callback);
++
+     // Gets the multicast group addresses the socket is currently joined to.
+     // |socketId| : The socket ID.
+     // |callback| : Called with an array of strings of the result.

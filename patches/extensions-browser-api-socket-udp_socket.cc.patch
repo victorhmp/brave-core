@@ -1,0 +1,26 @@
+diff --git a/extensions/browser/api/socket/udp_socket.cc b/extensions/browser/api/socket/udp_socket.cc
+index 0f129a64cbb949eb35bf29f768f609843f2ee409..183fd38338e5ca173209854b015e75406be6e0d5 100644
+--- a/extensions/browser/api/socket/udp_socket.cc
++++ b/extensions/browser/api/socket/udp_socket.cc
+@@ -74,6 +74,7 @@ void UDPSocket::Bind(const std::string& address,
+     std::move(callback).Run(net::ERR_INVALID_ARGUMENT);
+     return;
+   }
++
+   socket_->Bind(ip_end_point, std::move(socket_options_),
+                 base::BindOnce(&UDPSocket::OnBindCompleted,
+                                base::Unretained(this), std::move(callback)));
+@@ -381,6 +382,13 @@ void UDPSocket::SetBroadcast(bool enabled,
+   socket_->SetBroadcast(enabled, std::move(callback));
+ }
+ 
++int UDPSocket::SetAllowAddressReuse(bool allowed) {
++	if (!socket_options_)
++	  return net::ERR_SOCKET_IS_CONNECTED;
++	socket_options_->allow_address_reuse = allowed;
++	return net::OK;
++}
++
+ const std::vector<std::string>& UDPSocket::GetJoinedGroups() const {
+   return multicast_groups_;
+ }

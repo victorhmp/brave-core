@@ -1,0 +1,30 @@
+diff --git a/extensions/browser/api/sockets_udp/sockets_udp_api.h b/extensions/browser/api/sockets_udp/sockets_udp_api.h
+index ad9b06f28cde260fccc4e42edb887af201cd135f..a10eb22e358e0dc5c3e2bf3a17f1bdf0dbe8f2a3 100644
+--- a/extensions/browser/api/sockets_udp/sockets_udp_api.h
++++ b/extensions/browser/api/sockets_udp/sockets_udp_api.h
+@@ -250,6 +250,25 @@ class SocketsUdpSetMulticastTimeToLiveFunction
+   std::unique_ptr<sockets_udp::SetMulticastTimeToLive::Params> params_;
+ };
+ 
++class SocketsUdpSetAllowAddressReuseFunction
++    : public UDPSocketAsyncApiFunction {
++ public:
++  DECLARE_EXTENSION_FUNCTION("sockets.udp.setAllowAddressReuse",
++                             SOCKETS_UDP_SETALLOWADDRESSREUSE)
++
++  SocketsUdpSetAllowAddressReuseFunction();
++
++ protected:
++  ~SocketsUdpSetAllowAddressReuseFunction() override;
++
++  // AsyncApiFunction
++  bool Prepare() override;
++  void Work() override;
++
++ private:
++  std::unique_ptr<sockets_udp::SetAllowAddressReuse::Params> params_;
++};
++
+ class SocketsUdpSetMulticastLoopbackModeFunction
+     : public UDPSocketAsyncApiFunction {
+  public:
