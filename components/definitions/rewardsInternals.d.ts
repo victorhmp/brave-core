@@ -15,6 +15,7 @@ declare namespace RewardsInternals {
       bootStamp: number
     }
     promotions: Promotion[]
+    log: string
   }
 
   export interface CurrentReconcile {

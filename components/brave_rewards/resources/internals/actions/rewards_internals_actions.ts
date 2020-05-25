@@ -34,3 +34,10 @@ export const onPromotions = (promotions: RewardsInternals.Promotion[]) =>
   action(types.ON_PROMOTIONS, {
     promotions
   })
+
+export const getLog = () => action(types.GET_LOG)
+
+export const onLog = (log: string) =>
+  action(types.ON_LOG, {
+    log
+  })
