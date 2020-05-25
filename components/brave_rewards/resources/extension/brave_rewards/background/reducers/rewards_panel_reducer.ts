@@ -52,6 +52,7 @@ export const rewardsPanelReducer = (state: RewardsExtension.State | undefined, a
       state.walletCorrupted = false
       break
     case types.ON_WALLET_INITIALIZED: {
+      console.log(payload)
       const result: RewardsExtension.Result = payload.result
       state = { ...state }
       if (result === RewardsExtension.Result.WALLET_CREATED) {
@@ -59,6 +60,7 @@ export const rewardsPanelReducer = (state: RewardsExtension.State | undefined, a
         state.walletCreateFailed = false
         state.walletCreating = false
         state.walletCorrupted = false
+        state.enabledMain = true
         chrome.braveRewards.saveAdsSetting('adsEnabled', 'true')
         chrome.storage.local.get(['is_dismissed'], function (result) {
           if (result && result['is_dismissed'] === 'false') {

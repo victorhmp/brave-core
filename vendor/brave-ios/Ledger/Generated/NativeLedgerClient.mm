@@ -50,9 +50,6 @@ void NativeLedgerClient::OnWalletProperties(ledger::Result result, ledger::Walle
 void NativeLedgerClient::ResetState(const std::string & name, ledger::ResultCallback callback) {
   [bridge_ resetState:name callback:callback];
 }
-void NativeLedgerClient::SaveLedgerState(const std::string & ledger_state, ledger::ResultCallback callback) {
-  [bridge_ saveLedgerState:ledger_state callback:callback];
-}
 void NativeLedgerClient::PublisherListNormalized(ledger::PublisherInfoList list) {
   [bridge_ publisherListNormalized:std::move(list)];
 }
