@@ -163,6 +163,7 @@ bool BraveMainDelegate::BasicStartupComplete(int* exit_code) {
       // on
       // this feature.
       features::kWebUIDarkMode.name,
+      password_manager::features::kDeleteCorruptedPasswords.name,
   };
 
   if (!base::CommandLine::ForCurrentProcess()->HasSwitch(
