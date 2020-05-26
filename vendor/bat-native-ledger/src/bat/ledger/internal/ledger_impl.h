@@ -180,8 +180,7 @@ class LedgerImpl : public ledger::Ledger {
 
   void LoadNicewareList(ledger::GetNicewareListCallback callback);
 
-  void SetConfirmationsWalletInfo(
-      const ledger::WalletInfoProperties& wallet_info_properties);
+  void SetConfirmationsWalletInfo();
 
   void LoadLedgerState(ledger::OnLoadCallback callback);
 
@@ -252,7 +251,7 @@ class LedgerImpl : public ledger::Ledger {
     const ledger::Result result,
     ledger::ResultCallback callback);
 
-  bool IsWalletCreated() const override;
+  bool IsWalletCreated() override;
 
   void GetPublisherActivityFromUrl(
       uint64_t windowId,
@@ -304,11 +303,7 @@ class LedgerImpl : public ledger::Ledger {
 
   void ResetReconcileStamp();
 
-  virtual const std::string& GetPaymentId() const;
-
-  const ledger::WalletInfoProperties& GetWalletInfo() const;
-
-  void SetWalletInfo(const ledger::WalletInfoProperties& info);
+  virtual std::string GetPaymentId();
 
   const ledger::WalletProperties& GetWalletProperties() const;
 
@@ -329,8 +324,6 @@ class LedgerImpl : public ledger::Ledger {
       uint32_t /* next_record */);
 
   void SetTimer(uint64_t time_offset, uint32_t* timer_id) const;
-
-  double GetDefaultContributionAmount() override;
 
   void HasSufficientBalanceToReconcile(
       ledger::HasSufficientBalanceToReconcileCallback callback) override;
@@ -398,8 +391,6 @@ class LedgerImpl : public ledger::Ledger {
   void FetchBalance(ledger::FetchBalanceCallback callback) override;
 
   void GetExternalWallets(ledger::GetExternalWalletsCallback callback);
-
-  std::string GetCardIdAddress() const;
 
   void GetExternalWallet(const std::string& wallet_type,
                          ledger::ExternalWalletCallback callback) override;
