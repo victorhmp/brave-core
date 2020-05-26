@@ -937,6 +937,18 @@ void AdsImpl::OnServeAdNotification(
 
   const int rand = base::RandInt(0, eligible_ads.size() - 1);
   const CreativeAdNotificationInfo ad = eligible_ads.at(rand);
+
+  if (ad.priority == 0) {
+    FailedToServeAdNotification("Pacing ad delivery [0]");
+    return;
+  }
+
+  const int rand_priority = base::RandInt(0, ad.priority - 1);
+  if (rand_priority != 0) {
+    FailedToServeAdNotification("Pacing ad delivery");
+    return;
+  }
+
   ShowAdNotification(ad);
 
   SuccessfullyServedAd();
