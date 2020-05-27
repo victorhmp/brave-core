@@ -609,6 +609,19 @@ test("brave_browser_tests") {
       "//brave/components/brave_rewards/browser/rewards_state_browsertest.cc",
       "//brave/components/brave_rewards/browser/rewards_service_browsertest_utils.cc",
       "//brave/components/brave_rewards/browser/rewards_service_browsertest_utils.h",
+    ]
+
+    deps += [
+      "//brave/vendor/bat-native-confirmations",
+      "//brave/vendor/bat-native-ledger",
+    ]
+
+    configs += [ "//brave/vendor/bat-native-confirmations:internal_config" ]
+    configs += [ "//brave/vendor/bat-native-ledger:internal_config" ]
+  }
+
+  if (brave_ads_enabled) {
+    sources += [
       "//brave/components/brave_ads/browser/ads_service_browsertest.cc",
       "//brave/components/brave_ads/browser/notification_helper_mock.cc",
       "//brave/components/brave_ads/browser/notification_helper_mock.h",
@@ -616,13 +629,9 @@ test("brave_browser_tests") {
 
     deps += [
       "//brave/vendor/bat-native-ads",
-      "//brave/vendor/bat-native-confirmations",
-      "//brave/vendor/bat-native-ledger",
     ]
 
-    configs += [ "//brave/vendor/bat-native-ledger:internal_config" ]
     configs += [ "//brave/vendor/bat-native-ads:internal_config" ]
-    configs += [ "//brave/vendor/bat-native-confirmations:internal_config" ]
   }
 
   if (enable_tor) {
