@@ -18,10 +18,10 @@
 
 namespace ads {
 
-class MockAdsClient : public AdsClient {
+class AdsClientMock : public AdsClient {
  public:
-  MockAdsClient();
-  ~MockAdsClient() override;
+  AdsClientMock();
+  ~AdsClientMock() override;
 
   MOCK_CONST_METHOD0(IsEnabled, bool());
 

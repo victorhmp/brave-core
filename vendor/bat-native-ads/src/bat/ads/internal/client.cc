@@ -65,7 +65,7 @@ void Client::Initialize(
   LoadState();
 }
 
-void Client::AppendAdHistoryToAdsShownHistory(
+void Client::AppendToAdsShownHistory(
     const AdHistory& ad_history) {
   client_state_->ads_shown_history.push_front(ad_history);
 

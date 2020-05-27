@@ -9,7 +9,6 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "bat/ads/internal/filters/ads_history_conversion_confirmation_type_filter.h"  // NOLINT
-#include "bat/ads/internal/client_mock.h"
 #include "bat/ads/internal/ads_client_mock.h"
 #include "bat/ads/internal/ads_impl.h"
 
@@ -25,8 +24,8 @@ class BatAdsHistoryConversionConfirmationTypeFilterTest
     : public ::testing::Test {
  protected:
   BatAdsHistoryConversionConfirmationTypeFilterTest()
-      : mock_ads_client_(std::make_unique<MockAdsClient>()),
-        ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+      : ads_client_mock_(std::make_unique<AdsClientMock>()),
+        ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
   }
 
@@ -87,7 +86,7 @@ class BatAdsHistoryConversionConfirmationTypeFilterTest
     return true;
   }
 
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
 
   std::unique_ptr<AdsHistoryFilter> ads_history_filter_;

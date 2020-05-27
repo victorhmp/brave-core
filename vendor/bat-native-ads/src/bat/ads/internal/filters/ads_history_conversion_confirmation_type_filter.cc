@@ -26,7 +26,6 @@ std::deque<AdHistory> AdsHistoryConversionConfirmationTypeFilter::Apply(
       [this](const AdHistory& ad) {
     return ShouldFilterConfirmationType(ad.ad_content.ad_action);
   });
-
   ads.erase(iter, ads.end());
 
   return ads;

@@ -4,7 +4,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "bat/ads/internal/sorts/ad_conversions_sort_factory.h"
-#include "bat/ads/internal/client_mock.h"
 #include "bat/ads/internal/ads_client_mock.h"
 #include "bat/ads/internal/ads_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -18,8 +17,8 @@ namespace ads {
 class BatAdConversionsSortTest : public ::testing::Test {
  protected:
   BatAdConversionsSortTest()
-      : mock_ads_client_(std::make_unique<MockAdsClient>()),
-        ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+      : ads_client_mock_(std::make_unique<AdsClientMock>()),
+        ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
   }
 
@@ -37,9 +36,6 @@ class BatAdConversionsSortTest : public ::testing::Test {
     auto callback = std::bind(
         &BatAdConversionsSortTest::OnAdsImplInitialize, this, _1);
     ads_->Initialize(callback);
-
-    client_mock_ =
-        std::make_unique<ClientMock>(ads_.get(), mock_ads_client_.get());
   }
 
   void TearDown() override {
@@ -69,10 +65,8 @@ class BatAdConversionsSortTest : public ::testing::Test {
     return list;
   }
 
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
-
-  std::unique_ptr<ClientMock> client_mock_;
 };
 
 TEST_F(BatAdConversionsSortTest,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 The Brave Authors. All rights reserved.
+/* Copyright (c) 2020 The Brave Authors. All rights reserved.
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,39 +6,35 @@
 #ifndef BAT_ADS_INTERNAL_FREQUENCY_CAPPING_PERMISSION_RULES_ADS_PER_HOUR_FREQUENCY_CAP_H_  // NOLINT
 #define BAT_ADS_INTERNAL_FREQUENCY_CAPPING_PERMISSION_RULES_ADS_PER_HOUR_FREQUENCY_CAP_H_  // NOLINT
 
-#include <string>
+#include <stdint.h>
 #include <deque>
+#include <string>
 
 #include "bat/ads/internal/frequency_capping/permission_rule.h"
 
 namespace ads {
 
-struct CreativeAdNotificationInfo;
 class AdsImpl;
-class AdsClient;
-class FrequencyCapping;
 
 class AdsPerHourFrequencyCap : public PermissionRule {
  public:
   AdsPerHourFrequencyCap(
-      const AdsImpl* const ads,
-      const AdsClient* const ads_client,
-      const FrequencyCapping* const frequency_capping);
+      const AdsImpl* const ads);
 
   ~AdsPerHourFrequencyCap() override;
 
   bool IsAllowed() override;
 
-  std::string GetLastMessage() const override;
+  const std::string& get_last_message() const override;
 
  private:
   const AdsImpl* const ads_;  // NOT OWNED
-  const AdsClient* const ads_client_;  // NOT OWNED
-  const FrequencyCapping* const frequency_capping_;  // NOT OWNED
 
   std::string last_message_;
 
-  bool AreAdsPerHourBelowAllowedThreshold(
+  std::deque<uint64_t> GetHistory() const;
+
+  bool DoesHistoryRespectCap(
       const std::deque<uint64_t>& history) const;
 };
 

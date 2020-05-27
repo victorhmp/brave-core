@@ -50,14 +50,11 @@ std::deque<AdHistory> AdsHistoryConfirmationFilter::Apply(
 
 bool AdsHistoryConfirmationFilter::ShouldFilterAction(
     const ConfirmationType& confirmation_type) const {
-  bool should_filter;
-
   switch (confirmation_type.value()) {
     case ConfirmationType::kClicked:
     case ConfirmationType::kViewed:
     case ConfirmationType::kDismissed: {
-      should_filter = false;
-      break;
+      return false;
     }
     case ConfirmationType::kNone:
     case ConfirmationType::kLanded:
@@ -65,12 +62,9 @@ bool AdsHistoryConfirmationFilter::ShouldFilterAction(
     case ConfirmationType::kUpvoted:
     case ConfirmationType::kDownvoted:
     case ConfirmationType::kConversion: {
-      should_filter = true;
-      break;
+      return true;
     }
   }
-
-  return should_filter;
 }
 
 }  // namespace ads

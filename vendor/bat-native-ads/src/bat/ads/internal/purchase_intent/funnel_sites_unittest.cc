@@ -34,12 +34,12 @@ const std::vector<TestTriplet> kTestUrls = {
 
 class AdsPurchaseIntentFunnelSitesTest : public ::testing::Test {
  protected:
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
 
   AdsPurchaseIntentFunnelSitesTest() :
-      mock_ads_client_(std::make_unique<MockAdsClient>()),
-      ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+      ads_client_mock_(std::make_unique<AdsClientMock>()),
+      ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
   }
 

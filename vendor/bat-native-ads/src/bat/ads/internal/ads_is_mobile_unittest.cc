@@ -15,12 +15,12 @@ namespace ads {
 
 class AdsIsMobileTest : public ::testing::Test {
  protected:
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
 
   AdsIsMobileTest() :
-      mock_ads_client_(std::make_unique<MockAdsClient>()),
-      ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+      ads_client_mock_(std::make_unique<AdsClientMock>()),
+      ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
   }
 
@@ -50,7 +50,7 @@ TEST_F(AdsIsMobileTest, IsMobile_iOS) {
   client_info.platform = IOS;
 
   // Act
-  EXPECT_CALL(*mock_ads_client_, GetClientInfo(_))
+  EXPECT_CALL(*ads_client_mock_, GetClientInfo(_))
       .WillOnce(SetArgPointee<0>(client_info));
 
   // Assert
@@ -63,7 +63,7 @@ TEST_F(AdsIsMobileTest, IsMobile_Android) {
   client_info.platform = ANDROID_OS;
 
   // Act
-  EXPECT_CALL(*mock_ads_client_, GetClientInfo(_))
+  EXPECT_CALL(*ads_client_mock_, GetClientInfo(_))
       .WillOnce(SetArgPointee<0>(client_info));
 
   // Assert
@@ -76,7 +76,7 @@ TEST_F(AdsIsMobileTest, IsDesktop_Windows) {
   client_info.platform = WINDOWS;
 
   // Act
-  EXPECT_CALL(*mock_ads_client_, GetClientInfo(_))
+  EXPECT_CALL(*ads_client_mock_, GetClientInfo(_))
       .WillOnce(SetArgPointee<0>(client_info));
 
   // Assert
@@ -89,7 +89,7 @@ TEST_F(AdsIsMobileTest, IsDesktop_macOS) {
   client_info.platform = MACOS;
 
   // Act
-  EXPECT_CALL(*mock_ads_client_, GetClientInfo(_))
+  EXPECT_CALL(*ads_client_mock_, GetClientInfo(_))
       .WillOnce(SetArgPointee<0>(client_info));
 
   // Assert
@@ -102,7 +102,7 @@ TEST_F(AdsIsMobileTest, IsDesktop_Linux) {
   client_info.platform = LINUX;
 
   // Act
-  EXPECT_CALL(*mock_ads_client_, GetClientInfo(_))
+  EXPECT_CALL(*ads_client_mock_, GetClientInfo(_))
       .WillOnce(SetArgPointee<0>(client_info));
 
   // Assert

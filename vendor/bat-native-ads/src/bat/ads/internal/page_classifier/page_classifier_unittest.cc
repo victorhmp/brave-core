@@ -26,7 +26,7 @@ namespace ads {
 class BraveAdsPageClassifierTest : public ::testing::Test {
  protected:
   BraveAdsPageClassifierTest()
-      : ads_client_mock_(std::make_unique<NiceMock<MockAdsClient>>()),
+      : ads_client_mock_(std::make_unique<NiceMock<AdsClientMock>>()),
         ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
 
@@ -93,7 +93,7 @@ class BraveAdsPageClassifierTest : public ::testing::Test {
     ASSERT_TRUE(page_classifier_->Initialize(json));
   }
 
-  std::unique_ptr<MockAdsClient> ads_client_mock_;
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
 
   std::unique_ptr<PageClassifier> page_classifier_;

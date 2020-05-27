@@ -7,44 +7,45 @@
 #include "base/time/time.h"
 #include "bat/ads/creative_ad_info.h"
 #include "bat/ads/internal/ads_impl.h"
-#include "bat/ads/internal/frequency_capping/exclusion_rules/per_hour_frequency_cap.h"
+#include "bat/ads/internal/frequency_capping/exclusion_rules/landed_frequency_cap.h"
 #include "bat/ads/internal/frequency_capping/frequency_capping_util.h"
 
 namespace ads {
 
-PerHourFrequencyCap::PerHourFrequencyCap(
+LandedFrequencyCap::LandedFrequencyCap(
     const AdsImpl* const ads)
     : ads_(ads) {
   DCHECK(ads_);
 }
 
-PerHourFrequencyCap::~PerHourFrequencyCap() = default;
+LandedFrequencyCap::~LandedFrequencyCap() = default;
 
-bool PerHourFrequencyCap::ShouldExclude(
+bool LandedFrequencyCap::ShouldExclude(
     const CreativeAdInfo& ad) {
   if (DoesAdRespectCap(ad)) {
     return false;
   }
 
-  last_message_ = base::StringPrintf("creativeInstanceId %s has exceeded the "
-      "frequency capping for perHour", ad.creative_instance_id.c_str());
+  last_message_ = base::StringPrintf("campaignId %s has exceeded the frequency "
+      "capping for landed", ad.campaign_id.c_str());
 
   return true;
 }
 
-const std::string& PerHourFrequencyCap::get_last_message() const {
+const std::string& LandedFrequencyCap::get_last_message() const {
   return last_message_;
 }
 
-std::deque<uint64_t> PerHourFrequencyCap::GetHistory(
-    const std::string& creative_instance_id) const {
+std::deque<uint64_t> LandedFrequencyCap::GetHistory(
+    const std::string& campaign_id) const {
   std::deque<uint64_t> filtered_history;
 
   const std::deque<AdHistory> history =
       ads_->get_client()->GetAdsShownHistory();
+
   for (const auto& ad : history) {
-    if (ad.ad_content.ad_action != ConfirmationType::kViewed ||
-        ad.ad_content.creative_instance_id != creative_instance_id) {
+    if (ad.ad_content.campaign_id != campaign_id ||
+        ad.ad_content.ad_action != ConfirmationType::kLanded) {
       continue;
     }
 
@@ -54,11 +55,11 @@ std::deque<uint64_t> PerHourFrequencyCap::GetHistory(
   return filtered_history;
 }
 
-bool PerHourFrequencyCap::DoesAdRespectCap(
+bool LandedFrequencyCap::DoesAdRespectCap(
     const CreativeAdInfo& ad) const {
-  const std::deque<uint64_t> history = GetHistory(ad.creative_instance_id);
+  const std::deque<uint64_t> history = GetHistory(ad.campaign_id);
 
-  const uint64_t hour_window = base::Time::kSecondsPerHour;
+  const uint64_t hour_window = 48 * base::Time::kSecondsPerHour;
 
   return DoesHistoryRespectCapForRollingTimeConstraint(history, hour_window, 1);
 }

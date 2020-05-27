@@ -12,26 +12,23 @@
 
 namespace ads {
 
-class FrequencyCapping;
+class AdsImpl;
 struct CreativeAdnfo;
 
 class ConversionFrequencyCap : public ExclusionRule {
  public:
   ConversionFrequencyCap(
-      const FrequencyCapping* const frequency_capping);
+      const AdsImpl* const ads);
 
   ~ConversionFrequencyCap() override;
-
-  ConversionFrequencyCap(const ConversionFrequencyCap&) = delete;
-  ConversionFrequencyCap& operator=(const ConversionFrequencyCap&) = delete;
 
   bool ShouldExclude(
       const CreativeAdInfo& ad) override;
 
-  std::string GetLastMessage() const override;
+  const std::string& get_last_message() const override;
 
  private:
-  const FrequencyCapping* const frequency_capping_;  // NOT OWNED
+  const AdsImpl* const ads_;  // NOT OWNED
 
   std::string last_message_;
 

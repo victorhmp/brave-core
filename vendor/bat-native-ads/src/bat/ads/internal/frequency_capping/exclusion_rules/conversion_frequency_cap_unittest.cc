@@ -14,7 +14,6 @@
 #include "bat/ads/internal/frequency_capping/frequency_capping.h"
 #include "bat/ads/internal/frequency_capping/exclusion_rules/conversion_frequency_cap.h"
 
-#include "bat/ads/internal/client_mock.h"
 #include "bat/ads/internal/ads_client_mock.h"
 #include "bat/ads/internal/ads_impl.h"
 #include "bat/ads/creative_ad_notification_info.h"
@@ -27,7 +26,7 @@ using ::testing::Invoke;
 
 namespace {
 
-const std::vector<std::string> kTestCreativeSetIds = {
+const std::vector<std::string>             kTestCreativeSetIds = {
     "654f10df-fbc4-4a92-8d43-2edf73734a60",
     "465f10df-fbc4-4a92-8d43-4edf73734a60"
 };
@@ -39,8 +38,8 @@ namespace ads {
 class BraveAdsConversionFrequencyCapTest : public ::testing::Test {
  protected:
     BraveAdsConversionFrequencyCapTest()
-    : mock_ads_client_(std::make_unique<MockAdsClient>()),
-      ads_(std::make_unique<AdsImpl>(mock_ads_client_.get())) {
+        : ads_client_mock_(std::make_unique<AdsClientMock>()),
+          ads_(std::make_unique<AdsImpl>(ads_client_mock_.get())) {
     // You can do set-up work for each test here
   }
 
@@ -59,11 +58,7 @@ class BraveAdsConversionFrequencyCapTest : public ::testing::Test {
         &BraveAdsConversionFrequencyCapTest::OnAdsImplInitialize, this, _1);
     ads_->Initialize(callback);
 
-    client_mock_ = std::make_unique<ClientMock>(ads_.get(),
-        mock_ads_client_.get());
-    frequency_capping_ = std::make_unique<FrequencyCapping>(client_mock_.get());
-    exclusion_rule_ = std::make_unique<ConversionFrequencyCap>(
-        frequency_capping_.get());
+    frequency_cap_ = std::make_unique<ConversionFrequencyCap>(ads_.get());
   }
 
   void OnAdsImplInitialize(const Result result) {
@@ -75,12 +70,24 @@ class BraveAdsConversionFrequencyCapTest : public ::testing::Test {
     // destructor)
   }
 
-  std::unique_ptr<MockAdsClient> mock_ads_client_;
+  void GeneratePastHistory(
+      const std::string& creative_set_id,
+      const uint64_t time_offset_in_seconds,
+      const uint8_t count) {
+    uint64_t now_in_seconds = base::Time::Now().ToDoubleT();
+
+    for (uint8_t i = 0; i < count; i++) {
+      now_in_seconds -= time_offset_in_seconds;
+
+      ads_->get_client()->AppendTimestampToAdConversionHistory(creative_set_id,
+          now_in_seconds);
+    }
+  }
+
+  std::unique_ptr<AdsClientMock> ads_client_mock_;
   std::unique_ptr<AdsImpl> ads_;
 
-  std::unique_ptr<ClientMock> client_mock_;
-  std::unique_ptr<FrequencyCapping> frequency_capping_;
-  std::unique_ptr<ConversionFrequencyCap> exclusion_rule_;
+  std::unique_ptr<ConversionFrequencyCap> frequency_cap_;
   CreativeAdNotificationInfo ad_notification_info_;
 };
 
@@ -89,41 +96,41 @@ TEST_F(BraveAdsConversionFrequencyCapTest, AdAllowedWithNoAdHistory) {
   ad_notification_info_.creative_set_id = kTestCreativeSetIds.at(0);
 
   // Act
-  const bool is_ad_excluded =
-      exclusion_rule_->ShouldExclude(ad_notification_info_);
+  const bool should_exclude =
+      frequency_cap_->ShouldExclude(ad_notification_info_);
 
   // Assert
-  EXPECT_FALSE(is_ad_excluded);
+  EXPECT_FALSE(should_exclude);
 }
 
 TEST_F(BraveAdsConversionFrequencyCapTest, AdNotAllowedWithMatchingAds) {
   // Arrange
   ad_notification_info_.creative_set_id = kTestCreativeSetIds.at(0);
 
-  client_mock_->GeneratePastAdConversionHistoryFromNow(
-      ad_notification_info_.creative_set_id, base::Time::kSecondsPerHour, 1);
+  GeneratePastHistory(ad_notification_info_.creative_set_id,
+      base::Time::kSecondsPerHour, 1);
 
   // Act
-  const bool is_ad_excluded =
-      exclusion_rule_->ShouldExclude(ad_notification_info_);
+  const bool should_exclude =
+      frequency_cap_->ShouldExclude(ad_notification_info_);
 
   // Assert
-  EXPECT_TRUE(is_ad_excluded);
+  EXPECT_TRUE(should_exclude);
 }
 
 TEST_F(BraveAdsConversionFrequencyCapTest, AdAllowedWithNonMatchingAds) {
   // Arrange
-  client_mock_->GeneratePastAdConversionHistoryFromNow(
-      kTestCreativeSetIds.at(0), base::Time::kSecondsPerHour, 1);
+  GeneratePastHistory(kTestCreativeSetIds.at(0),
+      base::Time::kSecondsPerHour, 1);
 
   ad_notification_info_.creative_set_id = kTestCreativeSetIds.at(1);
 
   // Act
-  const bool is_ad_excluded =
-      exclusion_rule_->ShouldExclude(ad_notification_info_);
+  const bool should_exclude =
+      frequency_cap_->ShouldExclude(ad_notification_info_);
 
   // Assert
-  EXPECT_FALSE(is_ad_excluded);
+  EXPECT_FALSE(should_exclude);
 }
 
 }  // namespace ads

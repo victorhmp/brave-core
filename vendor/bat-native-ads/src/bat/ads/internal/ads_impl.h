@@ -248,7 +248,6 @@ class AdsImpl : public Ads {
   std::unique_ptr<Client> client_;
   std::unique_ptr<Bundle> bundle_;
   std::unique_ptr<AdsServe> ads_serve_;
-  std::unique_ptr<FrequencyCapping> frequency_capping_;
   std::unique_ptr<AdConversions> ad_conversions_;
   std::unique_ptr<PageClassifier> page_classifier_;
   std::unique_ptr<PurchaseIntentClassifier> purchase_intent_classifier_;
