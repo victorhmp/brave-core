@@ -1,0 +1,12 @@
+diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
+index aebcdb1d75a1f1ae91a39fa5c8a1087df5e19111..e3c714c83feafc077f687553d7aff9ec54b6bbdc 100644
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -126,6 +126,7 @@ void PrimaryAccountManager::Initialize(PrefService* local_state) {
+   // It is important to only load credentials after starting to observe the
+   // token service.
+   token_service_->AddObserver(this);
++  BRAVE_NO_GAIA_REQUEST_ON_STARTUP
+   token_service_->LoadCredentials(GetAuthenticatedAccountId());
+ }
+ 

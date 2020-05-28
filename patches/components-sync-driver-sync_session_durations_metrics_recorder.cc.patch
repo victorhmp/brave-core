@@ -1,0 +1,12 @@
+diff --git a/components/sync/driver/sync_session_durations_metrics_recorder.cc b/components/sync/driver/sync_session_durations_metrics_recorder.cc
+index e8ab17ed1cbaaf50017421d20b0d27eac8388f4f..4a6e81ad4a8662b45baf6d6a5894df0db0723830 100644
+--- a/components/sync/driver/sync_session_durations_metrics_recorder.cc
++++ b/components/sync/driver/sync_session_durations_metrics_recorder.cc
+@@ -28,6 +28,7 @@ SyncSessionDurationsMetricsRecorder::SyncSessionDurationsMetricsRecorder(
+     SyncService* sync_service,
+     signin::IdentityManager* identity_manager)
+     : sync_service_(sync_service), identity_manager_(identity_manager) {
++  BRAVE_NO_SYNC_METRICS
+   // |sync_service| can be null if sync is disabled by a command line flag.
+   if (sync_service_) {
+     sync_observer_.Add(sync_service_);
