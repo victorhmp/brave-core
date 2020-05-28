@@ -7,6 +7,7 @@
 #include "chrome/browser/ui/webui/webui_util.h"
 #include "base/stl_util.h"
 #include "brave/browser/ui/webui/settings/brave_privacy_handler.h"
+#include "brave/browser/ui/webui/settings/brave_social_blocking_handler.h"
 
 namespace settings {
 void BraveAddLocalizedStrings(content::WebUIDataSource*, Profile*);
@@ -227,6 +228,7 @@ void BraveAddLocalizedStrings(content::WebUIDataSource* html_source,
   BraveAddCommonStrings(html_source, profile);
   BraveAddResources(html_source, profile);
   BravePrivacyHandler::AddLoadTimeData(html_source, profile);
+  BraveSocialBlockingHandler::AddLoadTimeData(html_source, profile);
 }
 
 }  // namespace settings

@@ -5,12 +5,27 @@
 cr.define('settings', function() {
   /** @interface */
   class SocialBlockingBrowserProxy {
+    /**
+     * @param {boolean} enabled (true/false).
+     */
+    setGoogleLoginEnabled(value) {}
+    /**
+     * @return {boolean}
+     */
+    wasGoogleLoginEnabledAtStartup() {}
   }
 
   /**
    * @implements {settings.SocialBlockingBrowserProxy}
    */
   class SocialBlockingBrowserProxyImpl {
+    setGoogleLoginEnabled(value) {
+      chrome.send('setGoogleLoginEnabled', [value]);
+    }
+
+    wasGoogleLoginEnabledAtStartup() {
+      return loadTimeData.getBoolean('googleLoginEnabledAtStartup');
+    }
   }
 
   cr.addSingletonGetter(SocialBlockingBrowserProxyImpl);

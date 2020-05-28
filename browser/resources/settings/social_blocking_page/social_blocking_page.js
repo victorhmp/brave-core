@@ -23,6 +23,23 @@ Polymer({
   },
 
   /** @override */
-  ready: function() {},
+  ready: function() {
+    this.setGoogleLoginEnabled_ = this.setGoogleLoginEnabled_.bind(this)
+    this.restartBrowser_ = this.restartBrowser_.bind(this)
+  },
+
+  setGoogleLoginEnabled_: function() {
+    this.browserProxy_.setGoogleLoginEnabled(this.$.googleLoginControlType.checked)
+  },
+
+  shouldShowRestart_: function(enabled) {
+    return enabled != this.browserProxy_.wasGoogleLoginEnabledAtStartup();
+  },
+
+  restartBrowser_: function(e) {
+    e.stopPropagation();
+    window.open("chrome://restart", "_self");
+  },
+
 });
 })();
