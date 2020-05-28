@@ -5,8 +5,8 @@
 
 source_set("content_settings") {
   sources = [
-    "brave_content_settings_manager_impl.cc",
-    "brave_content_settings_manager_impl.h",
+    "brave_content_settings_manager_delegate.cc",
+    "brave_content_settings_manager_delegate.h",
   ]
 
   deps = [
@@ -14,6 +14,5 @@ source_set("content_settings") {
     "//brave/components/brave_shields/browser",
     # "//chrome/browser" # dep cycle
     "//content/public/browser",
-    "//mojo/public/cpp/bindings",
   ]
 }
