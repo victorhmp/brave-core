@@ -20,7 +20,6 @@
 #include "base/system/sys_info.h"
 #include "base/task/post_task.h"
 #include "base/values.h"
-#include "brave/browser/brave_stats_updater_util.h"
 #include "brave/common/network_constants.h"
 #include "brave/common/pref_names.h"
 #include "brave_base/random.h"
@@ -85,11 +84,14 @@ std::string BuildReferralEndpoint(const std::string& path) {
 
 namespace brave {
 
-BraveReferralsService::BraveReferralsService(PrefService* pref_service)
+BraveReferralsService::BraveReferralsService(PrefService* pref_service,
+    std::string api_key, std::string platform)
     : initialized_(false),
       task_runner_(base::CreateSequencedTaskRunner(
           {base::ThreadPool(), base::MayBlock()})),
       pref_service_(pref_service),
+      api_key_(api_key),
+      platform_(platform),
       weak_factory_(this) {
 }
 
@@ -496,12 +498,10 @@ void BraveReferralsService::MaybeDeletePromoCodePref() const {
 }
 
 std::string BraveReferralsService::BuildReferralInitPayload() const {
-  std::string api_key = brave::GetAPIKey();
-
   base::Value root(base::Value::Type::DICTIONARY);
-  root.SetKey("api_key", base::Value(api_key));
+  root.SetKey("api_key", base::Value(api_key_));
   root.SetKey("referral_code", base::Value(promo_code_));
-  root.SetKey("platform", base::Value(GetPlatformIdentifier()));
+  root.SetKey("platform", base::Value(platform_));
 
   std::string result;
   base::JSONWriter::Write(root, &result);
@@ -511,10 +511,8 @@ std::string BraveReferralsService::BuildReferralInitPayload() const {
 
 std::string BraveReferralsService::BuildReferralFinalizationCheckPayload()
     const {
-  std::string api_key = brave::GetAPIKey();
-
   base::Value root(base::Value::Type::DICTIONARY);
-  root.SetKey("api_key", base::Value(api_key));
+  root.SetKey("api_key", base::Value(api_key_));
   root.SetKey("download_id",
               base::Value(pref_service_->GetString(kReferralDownloadID)));
 
@@ -680,11 +678,6 @@ std::string BraveReferralsService::FormatExtraHeaders(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<BraveReferralsService> BraveReferralsServiceFactory(
-    PrefService* pref_service) {
-  return std::make_unique<BraveReferralsService>(pref_service);
-}
 
 void RegisterPrefsForBraveReferralsService(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kReferralCheckedForPromoCodeFile, false);

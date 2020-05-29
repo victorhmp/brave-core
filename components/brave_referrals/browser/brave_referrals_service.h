@@ -30,7 +30,8 @@ std::string GetAPIKey();
 
 class BraveReferralsService {
  public:
-  explicit BraveReferralsService(PrefService* pref_service);
+  explicit BraveReferralsService(PrefService* pref_service,
+      std::string platform, std::string api_key);
   ~BraveReferralsService();
 
   void Start();
@@ -101,16 +102,12 @@ class BraveReferralsService {
   std::unique_ptr<base::RepeatingTimer> finalization_checks_timer_;
   ReferralInitializedCallback referral_initialized_callback_;
   PrefService* pref_service_;
+  std::string api_key_;
+  std::string platform_;
   std::string promo_code_;
 
   base::WeakPtrFactory<BraveReferralsService> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(BraveReferralsService);
 };
-
-// Creates the BraveReferralsService
-std::unique_ptr<BraveReferralsService> BraveReferralsServiceFactory(
-    PrefService* pref_service);
 
 // Registers the preferences used by BraveReferralsService
 void RegisterPrefsForBraveReferralsService(PrefRegistrySimple* registry);

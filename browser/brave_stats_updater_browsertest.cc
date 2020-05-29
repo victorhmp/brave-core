@@ -5,6 +5,7 @@
 
 #include "base/environment.h"
 #include "base/path_service.h"
+#include "brave/browser/brave_referrals/brave_referrals_service_factory.h"
 #include "brave/browser/brave_stats_updater.h"
 #include "brave/common/pref_names.h"
 #include "brave/components/brave_referrals/browser/brave_referrals_service.h"
@@ -128,11 +129,12 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   // Start the referrals service, since the stats updater's startup
   // ping only occurs after the referrals service checks for the promo
   // code file
-  brave::BraveReferralsService referrals_service(GetLocalState());
-  referrals_service.SetReferralInitializedCallbackForTest(base::BindRepeating(
+  auto referrals_service = brave::BraveReferralsServiceFactory::GetInstance()
+    ->GetForPrefs(GetLocalState());
+  referrals_service->SetReferralInitializedCallbackForTest(base::BindRepeating(
       &BraveStatsUpdaterBrowserTest::OnReferralInitialized,
       base::Unretained(this)));
-  referrals_service.Start();
+  referrals_service->Start();
   WaitForReferralInitializeCallback();
 
   // Start the stats updater, wait for it to perform its startup ping,
@@ -145,7 +147,7 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   stats_updater.Stop();
 
   // Stop the referrals service
-  referrals_service.Stop();
+  referrals_service->Stop();
 
   // First check preference should now be true
   EXPECT_TRUE(GetLocalState()->GetBoolean(kFirstCheckMade));
@@ -161,11 +163,12 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   // Start the referrals service, since the stats updater's startup
   // ping only occurs after the referrals service checks for the promo
   // code file
-  brave::BraveReferralsService referrals_service(GetLocalState());
-  referrals_service.SetReferralInitializedCallbackForTest(base::BindRepeating(
+  auto referrals_service = brave::BraveReferralsServiceFactory::GetInstance()
+    ->GetForPrefs(GetLocalState());
+  referrals_service->SetReferralInitializedCallbackForTest(base::BindRepeating(
       &BraveStatsUpdaterBrowserTest::OnReferralInitialized,
       base::Unretained(this)));
-  referrals_service.Start();
+  referrals_service->Start();
   WaitForReferralInitializeCallback();
 
   // Start the stats updater, wait for it to perform its startup ping,
@@ -178,7 +181,7 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   stats_updater.Stop();
 
   // Stop the referrals service
-  referrals_service.Stop();
+  referrals_service->Stop();
 
   // Promo code file preference should now be true
   EXPECT_TRUE(GetLocalState()->GetBoolean(kReferralInitialization));
@@ -259,11 +262,12 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   // Start the referrals service, since the stats updater's startup
   // ping only occurs after the referrals service checks for the promo
   // code file
-  brave::BraveReferralsService referrals_service(GetLocalState());
-  referrals_service.SetReferralInitializedCallbackForTest(base::BindRepeating(
+  auto referrals_service = brave::BraveReferralsServiceFactory::GetInstance()
+    ->GetForPrefs(GetLocalState());
+  referrals_service->SetReferralInitializedCallbackForTest(base::BindRepeating(
       &BraveStatsUpdaterBrowserTest::OnReferralInitialized,
       base::Unretained(this)));
-  referrals_service.Start();
+  referrals_service->Start();
   WaitForReferralInitializeCallback();
 
   // Start the stats updater, wait for it to perform its startup ping,
@@ -276,7 +280,7 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   stats_updater.Stop();
 
   // Stop the referrals service
-  referrals_service.Stop();
+  referrals_service->Stop();
 
   // Promo code file preference should now be true
   EXPECT_TRUE(GetLocalState()->GetBoolean(kReferralInitialization));
