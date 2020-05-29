@@ -1,5 +1,5 @@
 diff --git a/components/os_crypt/key_storage_keyring.cc b/components/os_crypt/key_storage_keyring.cc
-index a4c5b394a24d8a9b754502cf78ba13db685190cf..e55e6faeade6049f646603baf7fa72187af82a38 100644
+index 409bd27cbc0877634d7d9809575cfa5f60ba04c2..10c9e432da6859d6d4d2b496bbf3a15d4c5e0ae2 100644
 --- a/components/os_crypt/key_storage_keyring.cc
 +++ b/components/os_crypt/key_storage_keyring.cc
 @@ -6,6 +6,7 @@
@@ -7,10 +7,10 @@ index a4c5b394a24d8a9b754502cf78ba13db685190cf..e55e6faeade6049f646603baf7fa7218
  #include "base/base64.h"
  #include "base/bind.h"
 +#include "base/command_line.h"
+ #include "base/logging.h"
  #include "base/rand_util.h"
  #include "base/single_thread_task_runner.h"
- #include "base/strings/string_number_conversions.h"
-@@ -17,7 +18,7 @@ namespace {
+@@ -18,7 +19,7 @@ namespace {
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
  const char kApplicationName[] = "chrome";
  #else
@@ -19,9 +19,9 @@ index a4c5b394a24d8a9b754502cf78ba13db685190cf..e55e6faeade6049f646603baf7fa7218
  #endif
  
  const GnomeKeyringPasswordSchema kSchema = {
-@@ -46,9 +47,19 @@ std::string KeyStorageKeyring::GetKeyImpl() {
+@@ -47,9 +48,19 @@ base::Optional<std::string> KeyStorageKeyring::GetKeyImpl() {
  
-   std::string password;
+   base::Optional<std::string> password;
    gchar* password_c = nullptr;
 +  const char* application_name;
 +  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();

@@ -1,8 +1,8 @@
 diff --git a/content/public/browser/url_data_source.cc b/content/public/browser/url_data_source.cc
-index 406ecfd3f97e618a0392661549523872c0ee42c2..f544b17b8313a9047b4cd6685e31a016ada2ddd2 100644
+index e5b60a8179eda4791b8e250a2f75ca0b24123365..77f596c0206b41c72c7d073acd46510b07a05ac8 100644
 --- a/content/public/browser/url_data_source.cc
 +++ b/content/public/browser/url_data_source.cc
-@@ -85,7 +85,7 @@ bool URLDataSource::ShouldAddContentSecurityPolicy() {
+@@ -77,7 +77,7 @@ std::string URLDataSource::GetContentSecurityPolicyObjectSrc() {
  std::string URLDataSource::GetContentSecurityPolicyScriptSrc() {
    // Note: Do not add 'unsafe-eval' here. Instead override CSP for the
    // specific pages that need it, see context http://crbug.com/525224.
@@ -10,4 +10,4 @@ index 406ecfd3f97e618a0392661549523872c0ee42c2..f544b17b8313a9047b4cd6685e31a016
 +  return "script-src chrome://resources chrome://brave-resources 'self';";
  }
  
- std::string URLDataSource::GetContentSecurityPolicyObjectSrc() {
+ std::string URLDataSource::GetContentSecurityPolicyStyleSrc() {

@@ -1,5 +1,5 @@
 diff --git a/content/browser/permissions/permission_controller_impl.cc b/content/browser/permissions/permission_controller_impl.cc
-index a7cfeb8583939c2f56b41473176bc38ac03c1200..572ab911e351b97d86b9416e166a72398834937c 100644
+index c6edd2ebec0b57808512c3b6c574548431efac7e..45dd63c628ffdc17dce427c1994f515d80fbb566 100644
 --- a/content/browser/permissions/permission_controller_impl.cc
 +++ b/content/browser/permissions/permission_controller_impl.cc
 @@ -64,6 +64,7 @@ PermissionToSchedulingFeature(PermissionType permission_name) {
@@ -7,6 +7,6 @@ index a7cfeb8583939c2f56b41473176bc38ac03c1200..572ab911e351b97d86b9416e166a7239
      case PermissionType::AR:
      case PermissionType::VR:
 +    BRAVE_PERMISSION_TYPES
+     case PermissionType::CAMERA_PAN_TILT_ZOOM:
+     case PermissionType::WINDOW_PLACEMENT:
        return base::nullopt;
-   }
- }
