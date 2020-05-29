@@ -76,7 +76,7 @@ class DatabaseUnblindedToken: public DatabaseTable {
 
   bool MigrateToV20(ledger::DBTransaction* transaction);
 
-  bool MigrateToV25(ledger::DBTransaction* transaction);
+  bool MigrateToV27(ledger::DBTransaction* transaction);
 
   void OnGetRecords(
       ledger::DBCommandResponsePtr response,

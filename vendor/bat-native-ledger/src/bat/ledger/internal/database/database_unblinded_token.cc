@@ -161,8 +161,8 @@ bool DatabaseUnblindedToken::Migrate(
     case 20: {
       return MigrateToV20(transaction);
     }
-    case 25: {
-      return MigrateToV25(transaction);
+    case 27: {
+      return MigrateToV27(transaction);
     }
     default: {
       return true;
@@ -373,7 +373,7 @@ bool DatabaseUnblindedToken::MigrateToV20(ledger::DBTransaction* transaction) {
   return true;
 }
 
-bool DatabaseUnblindedToken::MigrateToV25(ledger::DBTransaction* transaction) {
+bool DatabaseUnblindedToken::MigrateToV27(ledger::DBTransaction* transaction) {
   DCHECK(transaction);
 
   const std::string query = base::StringPrintf(
@@ -544,6 +544,7 @@ void DatabaseUnblindedToken::MarkRecordListAsReserved(
     const std::string& redeem_id,
     ledger::ResultCallback callback) {
   if (ids.empty()) {
+    BLOG(1, "List of ids is empty");
     callback(ledger::Result::LEDGER_ERROR);
     return;
   }
@@ -601,6 +602,7 @@ void DatabaseUnblindedToken::OnMarkRecordListAsReserved(
     ledger::ResultCallback callback) {
   if (!response ||
       response->status != ledger::DBCommandResponse::Status::RESPONSE_OK) {
+    BLOG(0, "Response is wrong");
     callback(ledger::Result::LEDGER_ERROR);
     return;
   }
@@ -617,6 +619,7 @@ void DatabaseUnblindedToken::MarkRecordListAsSpendable(
     const std::string& redeem_id,
     ledger::ResultCallback callback) {
   if (redeem_id.empty()) {
+    BLOG(1, "Redeem id is empty");
     callback(ledger::Result::LEDGER_ERROR);
     return;
   }
@@ -646,6 +649,12 @@ void DatabaseUnblindedToken::MarkRecordListAsSpendable(
 void DatabaseUnblindedToken::GetReservedRecordList(
     const std::string& redeem_id,
     ledger::GetUnblindedTokenListCallback callback) {
+  if (redeem_id.empty()) {
+    BLOG(1, "Redeem id is empty");
+    callback({});
+    return;
+  }
+
   auto transaction = ledger::DBTransaction::New();
 
   const std::string query = base::StringPrintf(

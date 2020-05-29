@@ -285,8 +285,12 @@ void Unblinded::ReserveStepSaved(
       braveledger_bind_util::FromStringToContribution(contribution_string);
   if (!contribution) {
     BLOG(0, "Contribution was not converted successfully");
+    callback(ledger::Result::RETRY);
     return;
   }
+
+  // Discard cached reserved tokens now that retry window has passed
+  DiscardReservedUnblindedTokensFromCache(contribution->contribution_id);
 
   PreparePublishers(list, std::move(contribution), types, callback);
 }
@@ -307,10 +311,14 @@ void Unblinded::OnMarkUnblindedTokensAsReserved(
       contribution_string);
   if (!contribution) {
     BLOG(0, "Contribution was not converted successfully");
+    callback(ledger::Result::LEDGER_ERROR);
     return;
   }
 
   const std::string contribution_id = contribution->contribution_id;
+
+  // Cache reserved tokens for potential retry attempt
+  AddReservedUnblindedTokensToCache(contribution_id, list);
 
   auto save_callback = std::bind(&Unblinded::ReserveStepSaved,
       this,
@@ -593,9 +601,26 @@ void Unblinded::Retry(
       Start(types, contribution->contribution_id, callback);
       return;
     }
-    case ledger::ContributionStep::STEP_PREPARE:
-    case ledger::ContributionStep::STEP_RESERVE: {
+    case ledger::ContributionStep::STEP_PREPARE: {
       ProcessTokens(types, contribution->contribution_id, callback);
+      return;
+    }
+    case ledger::ContributionStep::STEP_RESERVE: {
+      // Retrieve reserved unblinded tokens from cache for retry
+      // attempt
+      std::vector<ledger::UnblindedToken> list;
+      if (!GetReservedUnblindedTokensFromCache(
+            contribution->contribution_id,
+            &list)) {
+        BLOG(0, "No reserved unblinded tokens saved for retry attempt");
+        callback(ledger::Result::LEDGER_ERROR);
+        return;
+      }
+
+      // Discard reserved unblinded tokens from cache
+      DiscardReservedUnblindedTokensFromCache(contribution->contribution_id);
+
+      PreparePublishers(list, std::move(contribution), types, callback);
       return;
     }
     case ledger::ContributionStep::STEP_AC_TABLE_EMPTY:
@@ -610,6 +635,38 @@ void Unblinded::Retry(
       return;
     }
   }
+}
+
+void Unblinded::AddReservedUnblindedTokensToCache(
+    const std::string& contribution_id,
+    const std::vector<ledger::UnblindedToken>& list) {
+  DCHECK(!contribution_id.empty());
+  base::AutoLock lock(reserved_unblinded_tokens_lock_);
+  reserved_unblinded_tokens_for_retry_.insert({contribution_id, list});
+}
+
+bool Unblinded::GetReservedUnblindedTokensFromCache(
+    const std::string& contribution_id,
+    std::vector<ledger::UnblindedToken>* list) {
+  DCHECK(!contribution_id.empty());
+  DCHECK(list);
+
+  base::AutoLock lock(reserved_unblinded_tokens_lock_);
+  auto iter = reserved_unblinded_tokens_for_retry_.find(contribution_id);
+  if (iter == reserved_unblinded_tokens_for_retry_.end()) {
+    return false;
+  }
+
+  *list = iter->second;
+
+  return true;
+}
+
+void Unblinded::DiscardReservedUnblindedTokensFromCache(
+    const std::string& contribution_id) {
+  DCHECK(!contribution_id.empty());
+  base::AutoLock lock(reserved_unblinded_tokens_lock_);
+  reserved_unblinded_tokens_for_retry_.erase(contribution_id);
 }
 
 }  // namespace braveledger_contribution

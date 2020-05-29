@@ -848,7 +848,7 @@ IN_PROC_BROWSER_TEST_F(
 
 IN_PROC_BROWSER_TEST_F(
     RewardsDatabaseBrowserTest,
-    Migration_25_UnblindedTokens) {
+    Migration_27_UnblindedTokens) {
   {
     base::ScopedAllowBlockingForTesting allow_blocking;
     InitDB();
